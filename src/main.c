@@ -9,24 +9,23 @@ __sfr __at(0x92) P1_MOD_OC;
 // P1 port input and output register
 __sfr __at(0x90) P1;
 
-#define P1_4_MASK (1u << 4)
-
-void delay(void) {
-    volatile uint16_t i = 0;
-    while (--i) {
-    }
-}
+#define PORTMASK(n) (1u << n)
+#define P1_IN(n) (P1 >> n & 0b1)
 
 int main(void) {
     // P1.4 をpush-pull出力にする
-    P1_MOD_OC &= ~P1_4_MASK;
-    P1_DIR_PU |= P1_4_MASK;
+    P1_MOD_OC &= ~PORTMASK(4);
+    P1_DIR_PU |= PORTMASK(4);
+
+    // P1.5を入力にする
+    P1_MOD_OC &= ~PORTMASK(5);
+    P1_DIR_PU &= ~PORTMASK(5);
 
     while (1) {
-        P1 |= P1_4_MASK;
-        delay();
-
-        P1 &= ~P1_4_MASK;
-        delay();
+        if (P1_IN(5)) {
+            P1 &= ~PORTMASK(4);
+        } else {
+            P1 |= PORTMASK(4);
+        }
     }
 }
