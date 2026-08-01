@@ -6,4 +6,4 @@ project(ch_552e_blink
     LANGUAGES C ASM
 )
 
-add_directory(src)
+add_subdirectory(src)
