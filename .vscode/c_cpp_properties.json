@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "CH552 SDCC",
+      "configurationProvider": "ms-vscode.cmake-tools",
+      "mergeConfigurations": true,
+      "includePath": ["${workspaceFolder}/include"],
+      "forcedInclude": ["${workspaceFolder}/include/intellisense_sdcc.h"],
+      "intelliSenseMode": "macos-clang-arm64"
+    }
+  ],
+  "version": 4
+}

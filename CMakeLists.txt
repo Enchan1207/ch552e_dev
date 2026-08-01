@@ -6,4 +6,8 @@ project(ch_552e_blink
     LANGUAGES C ASM
 )
 
+include_directories(BEFORE
+    ${PROJECT_SOURCE_DIR}/include
+)
+
 add_subdirectory(src)
