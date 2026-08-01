@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(ch_552e_blink
+project(ch552e_dev
     VERSION 1.0
-    DESCRIPTION "CH552E Blink Example"
+    DESCRIPTION "CH552E development"
     LANGUAGES C ASM
 )
 
