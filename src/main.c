@@ -93,8 +93,8 @@ int main(void) {
             continue;
         }
         P1_4 = 1;
-        U1RI = 0;
         uint8_t data = SBUF1;
+        U1RI = 0;
 
         // エコーバック
         U1TI = 0;
