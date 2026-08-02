@@ -47,9 +47,9 @@ SFR(0xC2, SBAUD1);
 
 #define _BV(n) (1u << n)
 
-#define set(addr, bitpos) addr |= _BV(bitpos);
+#define set(addr, bitpos) (addr |= _BV(bitpos))
 #define get(addr, bitpos) (addr & _BV(bitpos))
-#define reset(addr, bitpos) addr &= ~_BV(bitpos);
+#define reset(addr, bitpos) (addr &= ~_BV(bitpos))
 
 void delay(void) {
     volatile uint16_t i = 0;
