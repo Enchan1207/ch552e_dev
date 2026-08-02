@@ -2,6 +2,10 @@
 
 #define SFR(addr, name) \
     __sfr __at(addr)    \
+        name
+
+#define SBIT(addr, name) \
+    __sbit __at(addr)    \
     name
 
 // sage mode register
@@ -18,24 +22,28 @@ SFR(0x92, P1_MOD_OC);
 
 // P1 port input and output register
 SFR(0x90, P1);
+SBIT(0x90, P1_0);
+SBIT(0x91, P1_1);
+SBIT(0x92, P1_2);
+SBIT(0x93, P1_3);
+SBIT(0x94, P1_4);
+SBIT(0x95, P1_5);
+SBIT(0x96, P1_6);
+SBIT(0x97, P1_7);
 
 // UART1 control register
 SFR(0xC0, SCON1);
+SBIT(0xC0, U1RI);
+SBIT(0xC1, U1TI);
+SBIT(0xC4, U1REN);
+SBIT(0xC5, U1SMOD);
+SBIT(0xC7, U1SM0);
 
 // UART1 data register
 SFR(0xC1, SBUF1);
 
 // UART1 baud rate setting register
 SFR(0xC2, SBAUD1);
-
-#define U1SM0_bp 7
-#define U1RESERVED_bp 6
-#define U1SMOD_bp 5
-#define U1REN_bp 4
-#define U1TB8_bp 3
-#define U1RB8_bp 2
-#define U1TI_bp 1
-#define U1RI_bp 0
 
 #define _BV(n) (1u << n)
 
@@ -65,7 +73,7 @@ int main(void) {
     reset(P1_DIR_PU, 6);
 
     // P1.4 (インジケータ) を出力にする
-    reset(P1, 4);
+    P1_4 = 0;
     reset(P1_MOD_OC, 4);
     set(P1_DIR_PU, 4);
 
@@ -75,27 +83,27 @@ int main(void) {
     SBAUD1 = 217;
 
     // 8/N/1, 倍速, 受信有効
-    reset(SCON1, U1SM0_bp);
-    set(SCON1, U1SMOD_bp);
-    set(SCON1, U1REN_bp);
+    U1SM0 = 0;
+    U1SMOD = 1;
+    U1REN = 1;
 
     while (1) {
         // 待機
-        if (!get(SCON1, U1RI_bp)) {
+        if (!U1RI) {
             continue;
         }
-        set(P1, 4);
-        reset(SCON1, U1RI_bp);
+        P1_4 = 1;
+        U1RI = 0;
         uint8_t data = SBUF1;
 
         // エコーバック
-        reset(SCON1, U1TI_bp);
+        U1TI = 0;
         SBUF1 = data;
 
-        while (!get(SCON1, U1TI_bp)) {
+        while (!U1TI) {
         }
 
-        reset(SCON1, U1TI_bp);
-        reset(P1, 4);
+        U1TI = 0;
+        P1_4 = 0;
     }
 }
