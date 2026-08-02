@@ -8,5 +8,6 @@
 #include "hardware/register_definitions/uart.h"
 #include "hardware/register_definitions/usb.h"
 #include "hardware/register_definitions/usb_endpoints.h"
+#include "hardware/register_definitions/usb_requests.h"
 
 #endif /* HARDWARE_CH552E_H */

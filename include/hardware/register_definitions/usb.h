@@ -138,6 +138,11 @@ __sbit __at(0xD8) UIF_BUS_RST;
  */
 __sfr __at(0xD9) USB_INT_ST;
 
+#define UIS_TOKEN_OUT 0
+#define UIS_TOKEN_SOF 1
+#define UIS_TOKEN_IN 2
+#define UIS_TOKEN_SETUP 3
+
 /**
  * @brief
  *      USB miscellaneous status register
@@ -273,6 +278,30 @@ __sfr __at(0xE1) USB_INT_EN;
  */
 __sfr __at(0xE2) USB_CTRL;
 
+/** Select Full-Speed or Low-Speed operation */
+#define bUC_LOW_SPEED (1u << 6)
+
+/** USB device and internal pull-up control */
+#define bUC_DEV_PU_EN (1u << 5)
+
+/** USB device and internal pull-up control */
+#define bUC_SYS_CTRL1 (1u << 5)
+
+/** USB system-control low bit */
+#define bUC_SYS_CTRL0 (1u << 4)
+
+/** Automatically respond with NAK while the transfer-complete flag remains pending */
+#define bUC_INT_BUSY (1u << 3)
+
+/** Reset the USB serial interface engine and most USB control registers */
+#define bUC_RESET_SIE (1u << 2)
+
+/** Clear USB interrupt flags and FIFO contents */
+#define bUC_CLR_ALL (1u << 1)
+
+/** Enable USB DMA */
+#define bUC_DMA_EN (1u << 0)
+
 /**
  * @brief
  *      USB device-address register
@@ -298,5 +327,8 @@ __sfr __at(0xE2) USB_CTRL;
  *      This register is not bit-addressable and must be accessed as a byte.
  */
 __sfr __at(0xE3) USB_DEV_AD;
+
+#define bUDA_GP_BIT (1u << 7)
+#define MASK_USB_ADDR 0b01111111
 
 #endif /* HARDWARE_REGISTER_DEFINITIONS_USB_H */

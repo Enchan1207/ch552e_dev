@@ -32,6 +32,24 @@
  */
 __sfr __at(0xD1) UDEV_CTRL;
 
+/** Disable the internal pull-down resistors on UDP/UDM */
+#define bUD_PD_DIS (1u << 7)
+
+/** Current UDP pin level, read-only */
+#define bUD_DP_PIN (1u << 5)
+
+/** Current UDM pin level, read-only */
+#define bUD_DM_PIN (1u << 4)
+
+/** Select low-speed (`1.5 Mbps`) or full-speed (`12 Mbps`) */
+#define bUD_LOW_SPEED (1u << 2)
+
+/** Software-defined general-purpose flag */
+#define bUD_GP_BIT (1u << 1)
+
+/** Enable the USB physical port */
+#define bUD_PORT_EN (1u << 0)
+
 /**
  * @brief
  *      Endpoint 1 control register
@@ -69,6 +87,30 @@ __sfr __at(0xD1) UDEV_CTRL;
  *      This register is not bit-addressable and must be accessed as a byte.
  */
 __sfr __at(0xD2) UEP1_CTRL;
+
+/** Expected DATA toggle for SETUP/OUT transactions */
+#define bUEP_R_TOG (1u << 7)
+
+/** DATA toggle to send for IN transactions */
+#define bUEP_T_TOG (1u << 6)
+
+/** Receive response: ACK */
+#define UEP_R_RES_ACK 0b0000
+
+/** Receive response: NAK */
+#define UEP_R_RES_NAK 0b1000
+
+/** Receive response: STALL */
+#define UEP_R_RES_STALL 0b1100
+
+/** Transmit response: ACK */
+#define UEP_T_RES_ACK 0b00
+
+/** Transmit response: NAK */
+#define UEP_T_RES_NAK 0b10
+
+/** Transmit response: STALL */
+#define UEP_T_RES_STALL 0b11
 
 /**
  * @brief
@@ -297,7 +339,7 @@ __sfr __at(0xEC) UEP0_DMA_L;
  *      Endpoint 0 always occupies the first 64 bytes from this base address.
  *      Endpoint 4 buffers, when enabled, are placed after it.
  */
-__sfr16 __at(0xEC) UEP0_DMA;
+__sfr16 __at(0xEDEC) UEP0_DMA;
 
 /**
  * @brief
@@ -327,7 +369,7 @@ __sfr __at(0xEE) UEP1_DMA_L;
  * @details
  *      Combined 16-bit alias for `UEP1_DMA_L` and `UEP1_DMA_H`.
  */
-__sfr16 __at(0xEE) UEP1_DMA;
+__sfr16 __at(0xEFEE) UEP1_DMA;
 
 /**
  * @brief
@@ -357,7 +399,7 @@ __sfr __at(0xE4) UEP2_DMA_L;
  * @details
  *      Combined 16-bit alias for `UEP2_DMA_L` and `UEP2_DMA_H`.
  */
-__sfr16 __at(0xE4) UEP2_DMA;
+__sfr16 __at(0xE5E4) UEP2_DMA;
 
 /**
  * @brief
@@ -387,6 +429,6 @@ __sfr __at(0xE6) UEP3_DMA_L;
  * @details
  *      Combined 16-bit alias for `UEP3_DMA_L` and `UEP3_DMA_H`.
  */
-__sfr16 __at(0xE6) UEP3_DMA;
+__sfr16 __at(0xE7E6) UEP3_DMA;
 
 #endif /* HARDWARE_REGISTER_DEFINITIONS_USB_ENDPOINTS_H */
