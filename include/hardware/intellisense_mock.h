@@ -23,6 +23,8 @@
 #define __reentrant
 #define __using(x)
 
+#define __interrupt(x)
+
 #endif
 
 #endif /** INTELLISENSE_SDCC_H */

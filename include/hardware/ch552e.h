@@ -50,6 +50,21 @@ __sfr __at(0xB9) CLOCK_CFG;
 
 // MARK: - Interruption
 
+#define INT_NO_INT0 0
+#define INT_NO_TMR0 1
+#define INT_NO_INT1 2
+#define INT_NO_TMR1 3
+#define INT_NO_UART0 4
+#define INT_NO_TMR2 5
+#define INT_NO_SPI0 6
+#define INT_NO_TKEY 7
+#define INT_NO_USB 8
+#define INT_NO_ADC 9
+#define INT_NO_UART1 10
+#define INT_NO_PWMX 11
+#define INT_NO_GPIO 12
+#define INT_NO_WDOG 13
+
 /**
  * @brief
  *      Extended interrupt priority control register

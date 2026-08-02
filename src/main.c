@@ -1,7 +1,37 @@
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "bit_util.h"
 #include "hardware/ch552e.h"
+#include "isr_util.h"
+
+volatile bool isDataReceived = false;
+volatile uint8_t uartBuffer = 0x00;
+
+// UART1の割込みは送受信を区別しないので、ISR内で分岐する
+ISR(INT_NO_UART1) {
+    if (U1RI) {
+        uartBuffer = SBUF1;
+        isDataReceived = true;
+        U1RI = 0;
+    }
+
+    if (U1TI) {
+        U1TI = 0;
+    }
+}
+
+void uart1_write(uint8_t data) {
+    IE_UART1 = 0;
+    U1TI = 0;
+    SBUF1 = data;
+
+    while (!U1TI) {
+    }
+
+    U1TI = 0;
+    IE_UART1 = 1;
+}
 
 int main(void) {
     // クロック設定 (内蔵オシレータ, 6MHz)
@@ -28,28 +58,21 @@ int main(void) {
     // 今回は 9600 baud になるよう設定
     SBAUD1 = 217;
 
-    // 8/N/1, 倍速, 受信有効
+    // 8/N/1, 倍速, 受信有効, 受信割込み有効
     U1SM0 = 0;
     U1SMOD = 1;
     U1REN = 1;
+    IE_UART1 = 1;
+
+    // グローバル割込み有効化
+    EA = 1;
 
     while (1) {
-        // 待機
-        if (!U1RI) {
+        if (!isDataReceived) {
             continue;
         }
-        P1_4 = 1;
-        uint8_t data = SBUF1;
-        U1RI = 0;
 
-        // エコーバック
-        U1TI = 0;
-        SBUF1 = data;
-
-        while (!U1TI) {
-        }
-
-        U1TI = 0;
-        P1_4 = 0;
+        isDataReceived = false;
+        uart1_write(uartBuffer);
     }
 }
