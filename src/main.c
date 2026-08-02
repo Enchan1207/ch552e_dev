@@ -1,61 +1,7 @@
 #include <stdint.h>
 
-#define SFR(addr, name) \
-    __sfr __at(addr)    \
-        name
-
-#define SBIT(addr, name) \
-    __sbit __at(addr)    \
-    name
-
-// sage mode register
-SFR(0xA1, SAFE_MOD);
-
-// clock config resister
-SFR(0xB9, CLOCK_CFG);
-
-// P1 port direction control and pull-up enable register
-SFR(0x93, P1_DIR_PU);
-
-// P1 port output mode register
-SFR(0x92, P1_MOD_OC);
-
-// P1 port input and output register
-SFR(0x90, P1);
-SBIT(0x90, P1_0);
-SBIT(0x91, P1_1);
-SBIT(0x92, P1_2);
-SBIT(0x93, P1_3);
-SBIT(0x94, P1_4);
-SBIT(0x95, P1_5);
-SBIT(0x96, P1_6);
-SBIT(0x97, P1_7);
-
-// UART1 control register
-SFR(0xC0, SCON1);
-SBIT(0xC0, U1RI);
-SBIT(0xC1, U1TI);
-SBIT(0xC4, U1REN);
-SBIT(0xC5, U1SMOD);
-SBIT(0xC7, U1SM0);
-
-// UART1 data register
-SFR(0xC1, SBUF1);
-
-// UART1 baud rate setting register
-SFR(0xC2, SBAUD1);
-
-#define _BV(n) (1u << n)
-
-#define set(addr, bitpos) (addr |= _BV(bitpos))
-#define get(addr, bitpos) (addr & _BV(bitpos))
-#define reset(addr, bitpos) (addr &= ~_BV(bitpos))
-
-void delay(void) {
-    volatile uint16_t i = 0;
-    while (--i) {
-    }
-}
+#include "bit_util.h"
+#include "hardware/ch552e.h"
 
 int main(void) {
     // クロック設定 (内蔵オシレータ, 6MHz)
