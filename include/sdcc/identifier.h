@@ -8,21 +8,41 @@
 
 #ifdef __INTELLISENSE__
 
+/** SFR (Special Function Register) 定義 */
 #define __sfr volatile unsigned char
+
+/**
+ * @brief SFRビットアクセス
+ * @details 8の倍数アドレスに割り当てられているレジスタにはビット単位でアクセスすることができます。
+ */
 #define __sbit volatile unsigned char
+
+/** アドレス指定子 */
 #define __at(address)
 
+/** メモリ空間修飾子 (iRAM 下位128byte) */
 #define __data
+
+/** メモリ空間修飾子 (iRAM) */
 #define __idata
+
+/** メモリ空間修飾子 */
 #define __pdata
+
+/** メモリ空間修飾子 (xRAM) */
 #define __xdata
+
+/** メモリ空間修飾子 (プログラムメモリ) */
 #define __code const
 
+/** メモリ空間修飾子 (ビットアドレス可能領域, 0x20 - 0x2F) */
 #define __bit unsigned char
+
 #define __critical
 #define __reentrant
 #define __using(x)
 
+/** ISR修飾子 */
 #define __interrupt(x)
 
 #endif
