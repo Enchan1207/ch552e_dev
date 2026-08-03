@@ -1,69 +1,10 @@
-#ifndef HARDWARE_CH552E_H
-#define HARDWARE_CH552E_H
+#ifndef CH552E_INTERRUPT_H
+#define CH552E_INTERRUPT_H
 
-#include "hardware/intellisense_mock.h"
+#include "ch552e/util.h"
+#include "sdcc/identifier.h"
 
-// MARK: - System configurations
-
-/**
- * @brief
- *      Safe mode control register
- *      (Reset value: `0x00`)
- *
- * @details
- *      Some protected SFRs, such as `CLOCK_CFG`, can only be written
- *      while the device is in safe mode.
- *
- *      To enter safe mode, write `0x55` followed immediately by `0xAA`:
- *
- *      @code
- *      SAFE_MOD = 0x55;
- *      SAFE_MOD = 0xAA;
- *      @endcode
- *
- *      Safe mode remains active for approximately 13 to 23 system clock
- *      cycles. Protected SFR writes must be completed within this period.
- *      Safe mode is automatically terminated when the period expires.
- *
- *      Writing any other value to this register terminates safe mode
- *      immediately.
- *
- * @note
- *      This register is write-only. Reading address `0xA1` accesses
- *      `CHIP_ID` instead of `SAFE_MOD`.
- *
- * @warning
- *      Interrupts may consume the limited safe-mode period. When multiple
- *      instructions are required between entering safe mode and writing a
- *      protected SFR, execute the sequence atomically or with interrupts
- *      temporarily disabled.
- */
-__sfr __at(0xA1) SAFE_MOD;
-
-/**
- * @brief
- *      System clock configuration register
- *      (Reset value: `0x83`)
- * @warning This register only can be written in safe mode.
- */
-__sfr __at(0xB9) CLOCK_CFG;
-
-// MARK: - Interruption
-
-#define INT_NO_INT0 0
-#define INT_NO_TMR0 1
-#define INT_NO_INT1 2
-#define INT_NO_TMR1 3
-#define INT_NO_UART0 4
-#define INT_NO_TMR2 5
-#define INT_NO_SPI0 6
-#define INT_NO_TKEY 7
-#define INT_NO_USB 8
-#define INT_NO_ADC 9
-#define INT_NO_UART1 10
-#define INT_NO_PWMX 11
-#define INT_NO_GPIO 12
-#define INT_NO_WDOG 13
+// MARK: - registers
 
 /**
  * @brief
@@ -98,6 +39,30 @@ __sfr __at(0xB9) CLOCK_CFG;
  */
 __sfr __at(0xE9) IP_EX;
 
+/** Current interrupt nesting-level flag (read-only) */
+#define bIP_LEVEL _BV(7)
+
+/** GPIO interrupt priority */
+#define bIP_GPIO _BV(6)
+
+/** PWM1/PWM2 interrupt priority */
+#define bIP_PWMX _BV(5)
+
+/** UART1 interrupt priority */
+#define bIP_UART1 _BV(4)
+
+/** ADC interrupt priority */
+#define bIP_ADC _BV(3)
+
+/** USB interrupt priority */
+#define bIP_USB _BV(2)
+
+/** Touch-key timer interrupt priority */
+#define bIP_TKEY _BV(1)
+
+/** SPI0 interrupt priority */
+#define bIP_SPI0 _BV(0)
+
 /**
  * @brief
  *      Extended interrupt enable register
@@ -128,13 +93,29 @@ __sfr __at(0xE9) IP_EX;
  *      This register is bit-addressable.
  */
 __sfr __at(0xE8) IE_EX;
+
+/** SPI0 interrupt */
 __sbit __at(0xE8) IE_SPI0;
+
+/** Touch-key timer interrupt */
 __sbit __at(0xE9) IE_TKEY;
+
+/** USB interrupt */
 __sbit __at(0xEA) IE_USB;
+
+/** ADC interrupt */
 __sbit __at(0xEB) IE_ADC;
+
+/** UART1 interrupt */
 __sbit __at(0xEC) IE_UART1;
+
+/** PWM1/PWM2 interrupt */
 __sbit __at(0xED) IE_PWMX;
+
+/** GPIO interrupt */
 __sbit __at(0xEE) IE_GPIO;
+
+/** Watchdog timer interrupt */
 __sbit __at(0xEF) IE_WDOG;
 
 /**
@@ -184,6 +165,30 @@ __sbit __at(0xEF) IE_WDOG;
  */
 __sfr __at(0xC7) GPIO_IE;
 
+/** GPIO interrupt trigger mode */
+#define bIE_IO_EDGE _BV(7)
+
+/** UART1 RX pin interrupt enable */
+#define bIE_RXD1_LO _BV(6)
+
+/** P1.5 interrupt enable */
+#define bIE_P1_5_LO _BV(5)
+
+/** P1.4 interrupt enable */
+#define bIE_P1_4_LO _BV(4)
+
+/** P1.3 interrupt enable */
+#define bIE_P1_3_LO _BV(3)
+
+/** RST pin interrupt enable */
+#define bIE_RST_HI _BV(2)
+
+/** P3.1 interrupt enable */
+#define bIE_P3_1_LO _BV(1)
+
+/** UART0 RX pin interrupt enable */
+#define bIE_RXD0_LO _BV(0)
+
 /**
  * @brief
  *      Standard interrupt priority control register
@@ -220,13 +225,29 @@ __sfr __at(0xC7) GPIO_IE;
  *      This register is bit-addressable.
  */
 __sfr __at(0xB8) IP;
+
+/** External interrupt 0 priority */
 __sbit __at(0xB8) PX0;
+
+/** Timer 0 interrupt priority */
 __sbit __at(0xB9) PT0;
+
+/** External interrupt 1 priority */
 __sbit __at(0xBA) PX1;
+
+/** Timer 1 interrupt priority */
 __sbit __at(0xBB) PT1;
+
+/** UART0 interrupt priority */
 __sbit __at(0xBC) PS;
+
+/** Timer 2 interrupt priority */
 __sbit __at(0xBD) PT2;
+
+/** Low-priority interrupt active flag (read-only) */
 __sbit __at(0xBE) PL_FLAG;
+
+/** High-priority interrupt active flag (read-only) */
 __sbit __at(0xBF) PH_FLAG;
 
 /**
@@ -270,107 +291,79 @@ __sbit __at(0xBF) PH_FLAG;
  *      This register is bit-addressable.
  */
 __sfr __at(0xA8) IE;
+
+/** External interrupt 0 enable */
 __sbit __at(0xA8) EX0;
+
+/** Timer 0 interrupt enable */
 __sbit __at(0xA9) ET0;
+
+/** External interrupt 1 enable */
 __sbit __at(0xAA) EX1;
+
+/** Timer 1 interrupt enable */
 __sbit __at(0xAB) ET1;
+
+/** UART0 interrupt enable */
 __sbit __at(0xAC) ES;
+
+/** Timer 2 interrupt enable */
 __sbit __at(0xAD) ET2;
+
+/** Global interrupt disable */
 __sbit __at(0xAE) E_DIS;
+
+/** Global interrupt enable */
 __sbit __at(0xAF) EA;
 
-// MARK: - GPIO
+// MARK: - utilities
 
 /**
- * @brief
- *      P1 port direction control and pull-up enable register
- *      (Reset value: `0xFF`)
- * @note
- *      Set direction control in push-pull output mode (0: in / 1: out)
- *
- *      Set pull-up register enable control in open-drain output mode (0: disabled / 1: enabled)
+ * @brief ISR定義
+ * @note 引数にはベクタ番号を指定します。
  */
-__sfr __at(0x93) P1_DIR_PU;
+#define ISR(vect) void __isr_##vect(void) __interrupt(vect)
 
-/**
- * @brief
- *      P1 port output mode setting register
- *      (Reset value: `0xFF`)
- * @note 0: push-pull output / 1: open-drain output
- */
-__sfr __at(0x92) P1_MOD_OC;
+/** 外部0割込み */
+#define INT_NO_INT0 0
 
-/**
- * @brief Port 1 Input/Output register
- * @note This register is bit-accessible with `P1_0` ~ `P1_7`.
- */
-__sfr __at(0x90) P1;
-__sbit __at(0x90) P1_0;
-__sbit __at(0x91) P1_1;
-__sbit __at(0x92) P1_2;
-__sbit __at(0x93) P1_3;
-__sbit __at(0x94) P1_4;
-__sbit __at(0x95) P1_5;
-__sbit __at(0x96) P1_6;
-__sbit __at(0x97) P1_7;
+/** タイマ0割込み */
+#define INT_NO_TMR0 1
 
-// MARK: - UART1
+/** 外部1割込み */
+#define INT_NO_INT1 2
 
-/**
- * @brief
- *      UART1 control register
- *      (Reset value: `0x40`)
- * @note This register is bit-accessible with `U1RI`, `U1TI`, `U1REN`, `U1SMOD`, and `U1SM0`.
- */
-__sfr __at(0xC0) SCON1;
+/** タイマ1割込み */
+#define INT_NO_TMR1 3
 
-/**
- * @brief UART1 receive interrupt flag
- * @note Set by hardware after a data byte is received successfully.
- *       This flag must be cleared by software.
- */
-__sbit __at(0xC0) U1RI;
+/** UART0割込み */
+#define INT_NO_UART0 4
 
-/**
- * @brief UART1 transmit interrupt flag
- * @note Set by hardware after a data byte has been transmitted.
- *       This flag must be cleared by software.
- */
-__sbit __at(0xC1) U1TI;
+/** タイマ2割込み */
+#define INT_NO_TMR2 5
 
-/**
- * @brief UART1 receive enable control
- * @note 0: receive disabled / 1: receive enabled
- */
-__sbit __at(0xC4) U1REN;
+/** SPI0割込み */
+#define INT_NO_SPI0 6
 
-/**
- * @brief UART1 baud-rate mode selection
- * @note 0: slow mode (`Fsys / 32`) / 1: fast mode (`Fsys / 16`)
- */
-__sbit __at(0xC5) U1SMOD;
+/** TouchKey割込み */
+#define INT_NO_TKEY 7
 
-/**
- * @brief UART1 operating mode selection
- * @note 0: 8-bit asynchronous communication / 1: 9-bit asynchronous communication
- */
-__sbit __at(0xC7) U1SM0;
+/** USB割込み */
+#define INT_NO_USB 8
 
-/**
- * @brief UART1 transmit and receive data register
- * @note
- *      The transmit and receive registers are physically separate.
- *      Writing accesses the transmit register; reading accesses the receive register.
- */
-__sfr __at(0xC1) SBUF1;
+/** ADC割込み */
+#define INT_NO_ADC 9
 
-/**
- * @brief UART1 baud-rate setting register
- * @note
- *      `U1SMOD = 0`: `SBAUD1 = 256 - Fsys / 32 / baud`
- *
- *      `U1SMOD = 1`: `SBAUD1 = 256 - Fsys / 16 / baud`
- */
-__sfr __at(0xC2) SBAUD1;
+/** UART1割込み */
+#define INT_NO_UART1 10
 
-#endif /* HARDWARE_CH552E_H */
+/** PWM割込み */
+#define INT_NO_PWMX 11
+
+/** GPIO割込み */
+#define INT_NO_GPIO 12
+
+/** ウォッチドッグ割込み */
+#define INT_NO_WDOG 13
+
+#endif /* CH552E_INTERRUPT_H */

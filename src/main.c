@@ -1,9 +1,9 @@
+#include <ch552e/interrupt.h>
+#include <ch552e/io.h>
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "bit_util.h"
-#include "hardware/ch552e.h"
-#include "isr_util.h"
 
 volatile bool isDataReceived = false;
 volatile uint8_t uartBuffer = 0x00;
