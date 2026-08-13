@@ -8,19 +8,6 @@
 volatile bool isDataReceived = false;
 volatile uint8_t uartBuffer = 0x00;
 
-// UART1の割込みは送受信を区別しないので、ISR内で分岐する
-ISR(INT_NO_UART1) {
-    if (U1RI) {
-        uartBuffer = SBUF1;
-        isDataReceived = true;
-        U1RI = 0;
-    }
-
-    if (U1TI) {
-        U1TI = 0;
-    }
-}
-
 void uart1_write(uint8_t data) {
     IE_UART1 = 0;
     U1TI = 0;

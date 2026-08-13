@@ -26,7 +26,6 @@ typedef struct uart1_ctx_t uart1_ctx_t;
 extern uart1_ctx_t* uart1;
 
 /// @brief UART1通信開始
-/// @param ctx
 /// @note ボーレートはマクロ UART_BAUD_RATE により設定します。
 void uart_begin(void);
 
