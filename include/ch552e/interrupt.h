@@ -94,28 +94,28 @@ __sfr __at(0xE9) IP_EX;
  */
 __sfr __at(0xE8) IE_EX;
 
-/** SPI0 interrupt */
+/** SPI0 interrupt enable */
 __sbit __at(0xE8) IE_SPI0;
 
-/** Touch-key timer interrupt */
+/** Touch-key timer interrupt enable */
 __sbit __at(0xE9) IE_TKEY;
 
-/** USB interrupt */
+/** USB interrupt enable */
 __sbit __at(0xEA) IE_USB;
 
-/** ADC interrupt */
+/** ADC interrupt enable */
 __sbit __at(0xEB) IE_ADC;
 
-/** UART1 interrupt */
+/** UART1 interrupt enable */
 __sbit __at(0xEC) IE_UART1;
 
-/** PWM1/PWM2 interrupt */
+/** PWM1/PWM2 interrupt enable */
 __sbit __at(0xED) IE_PWMX;
 
-/** GPIO interrupt */
+/** GPIO interrupt enable */
 __sbit __at(0xEE) IE_GPIO;
 
-/** Watchdog timer interrupt */
+/** Watchdog timer interrupt enable */
 __sbit __at(0xEF) IE_WDOG;
 
 /**
@@ -365,5 +365,13 @@ __sbit __at(0xAF) EA;
 
 /** ウォッチドッグ割込み */
 #define INT_NO_WDOG 13
+
+static inline void irq_disable(void) {
+    EA = 0;
+}
+
+static inline void irq_enable(void) {
+    EA = 1;
+}
 
 #endif /* CH552E_INTERRUPT_H */
