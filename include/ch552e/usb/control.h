@@ -1,7 +1,11 @@
 #ifndef HARDWARE_REGISTER_DEFINITIONS_USB_H
 #define HARDWARE_REGISTER_DEFINITIONS_USB_H
 
-#include "hardware/intellisense_mock.h"
+/**
+ * USB 制御・config系レジスタ
+ */
+
+#include "sdcc/identifier.h"
 
 /**
  * @brief

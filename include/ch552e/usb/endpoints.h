@@ -1,7 +1,11 @@
 #ifndef HARDWARE_REGISTER_DEFINITIONS_USB_ENDPOINTS_H
 #define HARDWARE_REGISTER_DEFINITIONS_USB_ENDPOINTS_H
 
-#include "hardware/intellisense_mock.h"
+/**
+ * USB エンドポイント制御レジスタ
+ */
+
+#include "sdcc/identifier.h"
 
 /**
  * @brief
