@@ -1,36 +1,15 @@
+#include <ch552e/interrupt.h>
+#include <ch552e/io.h>
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "bit_util.h"
-#include "hardware/ch552e.h"
-#include "isr_util.h"
+#include "hardware/uart1.h"
 
-volatile bool isDataReceived = false;
-volatile uint8_t uartBuffer = 0x00;
-
-// UART1の割込みは送受信を区別しないので、ISR内で分岐する
-ISR(INT_NO_UART1) {
-    if (U1RI) {
-        uartBuffer = SBUF1;
-        isDataReceived = true;
-        U1RI = 0;
+void delay(void) {
+    volatile uint16_t counter = 0;
+    while (--counter) {
     }
-
-    if (U1TI) {
-        U1TI = 0;
-    }
-}
-
-void uart1_write(uint8_t data) {
-    IE_UART1 = 0;
-    U1TI = 0;
-    SBUF1 = data;
-
-    while (!U1TI) {
-    }
-
-    U1TI = 0;
-    IE_UART1 = 1;
 }
 
 int main(void) {
@@ -48,31 +27,23 @@ int main(void) {
     reset(P1_MOD_OC, 6);
     reset(P1_DIR_PU, 6);
 
+    uart_begin();
+
     // P1.4 (インジケータ) を出力にする
     P1_4 = 0;
     reset(P1_MOD_OC, 4);
     set(P1_DIR_PU, 4);
 
-    // baud rate構成
-    // Fsys = 6MHz かつUARTは倍速で動いているので SBAUD1 = 256 - Fsys / 16 / baud
-    // 今回は 9600 baud になるよう設定
-    SBAUD1 = 217;
+    P1_4 = 1;
+    delay();
+    P1_4 = 0;
 
-    // 8/N/1, 倍速, 受信有効, 受信割込み有効
-    U1SM0 = 0;
-    U1SMOD = 1;
-    U1REN = 1;
-    IE_UART1 = 1;
+    irq_enable();
 
-    // グローバル割込み有効化
-    EA = 1;
+    static const char __xdata message[] = "Hello from xdata!\r\n";
 
     while (1) {
-        if (!isDataReceived) {
-            continue;
-        }
-
-        isDataReceived = false;
-        uart1_write(uartBuffer);
+        uart_print(message);
+        delay();
     }
 }

@@ -6,6 +6,8 @@ project(ch552e_dev
     LANGUAGES C ASM
 )
 
+set(F_SYS 6000000UL CACHE STRING "CH552 system clock frequency")
+
 include_directories(BEFORE
     ${PROJECT_SOURCE_DIR}/include
 )
