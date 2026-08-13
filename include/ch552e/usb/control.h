@@ -1,5 +1,5 @@
-#ifndef HARDWARE_REGISTER_DEFINITIONS_USB_H
-#define HARDWARE_REGISTER_DEFINITIONS_USB_H
+#ifndef CH552E_USB_CONTROL_H
+#define CH552E_USB_CONTROL_H
 
 /**
  * USB 制御・config系レジスタ
@@ -51,6 +51,30 @@
  *      This register is not bit-addressable and must be accessed as a byte.
  */
 __sfr __at(0x91) USB_C_CTRL;
+
+/** Enable the internal 10 kOhm VBUS2 pull-down */
+#define bVBUS2_PD_EN (1u << 7)
+
+/** Enable the internal 5.1 kOhm UCC2 pull-down */
+#define bUCC2_PD_EN (1u << 6)
+
+/** UCC2 pull-up selection, high bit */
+#define bUCC2_PU1_EN (1u << 5)
+
+/** UCC2 pull-up selection, low bit */
+#define bUCC2_PU0_EN (1u << 4)
+
+/** Enable the internal 10 kOhm VBUS1 pull-down */
+#define bVBUS1_PD_EN (1u << 3)
+
+/** Enable the internal 5.1 kOhm UCC1 pull-down */
+#define bUCC1_PD_EN (1u << 2)
+
+/** UCC1 pull-up selection, high bit */
+#define bUCC1_PU1_EN (1u << 1)
+
+/** UCC1 pull-up selection, low bit */
+#define bUCC1_PU0_EN (1u << 0)
 
 /**
  * @brief
@@ -142,6 +166,24 @@ __sbit __at(0xD8) UIF_BUS_RST;
  */
 __sfr __at(0xD9) USB_INT_ST;
 
+/** The transaction received a NAK response */
+#define bUIS_IS_NAK (1u << 7)
+
+/** DATA0/DATA1 synchronization matched */
+#define bUIS_TOG_OK (1u << 6)
+
+/** Token PID, high bit */
+#define bUIS_TOKEN1 (1u << 5)
+
+/** Token PID, low bit */
+#define bUIS_TOKEN0 (1u << 4)
+
+/** Token PID field */
+#define MASK_UIS_TOKEN 0b00110000
+
+/** Endpoint number field */
+#define MASK_UIS_ENDP 0b00001111
+
 #define UIS_TOKEN_OUT 0
 #define UIS_TOKEN_SOF 1
 #define UIS_TOKEN_IN 2
@@ -179,6 +221,18 @@ __sfr __at(0xD9) USB_INT_ST;
  *      This register is not bit-addressable and must be accessed as a byte.
  */
 __sfr __at(0xDA) USB_MIS_ST;
+
+/** USB protocol processor is idle */
+#define bUMS_SIE_FREE (1u << 5)
+
+/** Receive FIFO contains data */
+#define bUMS_R_FIFO_RDY (1u << 4)
+
+/** USB bus reset is currently in progress */
+#define bUMS_BUS_RESET (1u << 3)
+
+/** USB bus is currently suspended */
+#define bUMS_SUSPEND (1u << 2)
 
 /**
  * @brief
@@ -230,6 +284,24 @@ __sfr __at(0xDB) USB_RX_LEN;
  *      This register is not bit-addressable and must be accessed as a byte.
  */
 __sfr __at(0xE1) USB_INT_EN;
+
+/** Enable received-SOF interrupt */
+#define bUIE_DEV_SOF (1u << 7)
+
+/** Enable received-NAK interrupt */
+#define bUIE_DEV_NAK (1u << 6)
+
+/** Enable FIFO-overflow interrupt */
+#define bUIE_FIFO_OV (1u << 4)
+
+/** Enable suspend/wake-up event interrupt */
+#define bUIE_SUSPEND (1u << 2)
+
+/** Enable transaction-complete interrupt */
+#define bUIE_TRANSFER (1u << 1)
+
+/** Enable bus-reset event interrupt */
+#define bUIE_BUS_RST (1u << 0)
 
 /**
  * @brief
@@ -335,4 +407,91 @@ __sfr __at(0xE3) USB_DEV_AD;
 #define bUDA_GP_BIT (1u << 7)
 #define MASK_USB_ADDR 0b01111111
 
-#endif /* HARDWARE_REGISTER_DEFINITIONS_USB_H */
+/**
+ * @brief
+ *      Endpoint 1 and endpoint 4 mode-control register
+ *      (Reset value: `0x00`)
+ *
+ * @details
+ *      Enables endpoint 1 and endpoint 4 directions and selects the buffer
+ *      layout used by their DMA regions.
+ *
+ *      Bit assignments:
+ *      - Bit 7 `bUEP1_RX_EN`: Enable endpoint 1 OUT
+ *      - Bit 6 `bUEP1_TX_EN`: Enable endpoint 1 IN
+ *      - Bit 5: Reserved
+ *      - Bit 4 `bUEP1_BUF_MOD`: Endpoint 1 single- or double-buffer mode
+ *      - Bit 3 `bUEP4_RX_EN`: Enable endpoint 4 OUT
+ *      - Bit 2 `bUEP4_TX_EN`: Enable endpoint 4 IN
+ *      - Bits 1:0: Reserved
+ *
+ * @note
+ *      Endpoint 1 can use single or double 64-byte buffers depending on
+ *      `bUEP1_BUF_MOD`.
+ *
+ * @note
+ *      Endpoint 4 buffer allocation is taken from the memory block beginning
+ *      at `UEP0_DMA`: 64 bytes for endpoint 0, plus optional 64-byte RX and
+ *      64-byte TX buffers for endpoint 4.
+ */
+__sfr __at(0xEA) UEP4_1_MOD;
+
+/** Enable endpoint 1 OUT */
+#define bUEP1_RX_EN (1u << 7)
+
+/** Enable endpoint 1 IN */
+#define bUEP1_TX_EN (1u << 6)
+
+/** Endpoint 1 single- or double-buffer mode */
+#define bUEP1_BUF_MOD (1u << 4)
+
+/** Enable endpoint 4 OUT */
+#define bUEP4_RX_EN (1u << 3)
+
+/** Enable endpoint 4 IN */
+#define bUEP4_TX_EN (1u << 2)
+
+/**
+ * @brief
+ *      Endpoint 2 and endpoint 3 mode-control register
+ *      (Reset value: `0x00`)
+ *
+ * @details
+ *      Enables endpoint 2 and endpoint 3 directions and selects whether each
+ *      endpoint uses single or double 64-byte buffers.
+ *
+ *      Bit assignments:
+ *      - Bit 7 `bUEP3_RX_EN`: Enable endpoint 3 OUT
+ *      - Bit 6 `bUEP3_TX_EN`: Enable endpoint 3 IN
+ *      - Bit 5: Reserved
+ *      - Bit 4 `bUEP3_BUF_MOD`: Endpoint 3 single- or double-buffer mode
+ *      - Bit 3 `bUEP2_RX_EN`: Enable endpoint 2 OUT
+ *      - Bit 2 `bUEP2_TX_EN`: Enable endpoint 2 IN
+ *      - Bit 1: Reserved
+ *      - Bit 0 `bUEP2_BUF_MOD`: Endpoint 2 single- or double-buffer mode
+ *
+ * @note
+ *      In double-buffer mode, the active 64-byte bank is selected by
+ *      `bUEP_R_TOG` for OUT traffic and `bUEP_T_TOG` for IN traffic.
+ */
+__sfr __at(0xEB) UEP2_3_MOD;
+
+/** Enable endpoint 3 OUT */
+#define bUEP3_RX_EN (1u << 7)
+
+/** Enable endpoint 3 IN */
+#define bUEP3_TX_EN (1u << 6)
+
+/** Endpoint 3 single- or double-buffer mode */
+#define bUEP3_BUF_MOD (1u << 4)
+
+/** Enable endpoint 2 OUT */
+#define bUEP2_RX_EN (1u << 3)
+
+/** Enable endpoint 2 IN */
+#define bUEP2_TX_EN (1u << 2)
+
+/** Endpoint 2 single- or double-buffer mode */
+#define bUEP2_BUF_MOD (1u << 0)
+
+#endif /* CH552E_USB_CONTROL_H */
