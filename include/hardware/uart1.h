@@ -30,7 +30,7 @@ void uart_begin(void);
 /// @brief UART送信 (バイナリデータ)
 /// @param data
 /// @param len
-/// @note 与えられたデータの送信が完了するまでブロックしま
+/// @note 与えられたデータの送信が完了するまでブロックします。
 void uart_write(const uint8_t* const data, size_t len);
 
 /// @brief USART送信 (バイナリデータ, ノンブロッキング)

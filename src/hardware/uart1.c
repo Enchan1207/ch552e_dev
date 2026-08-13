@@ -2,6 +2,16 @@
 
 #include "ch552e/io.h"
 
+#ifndef F_SYS
+#error F_SYS is not defined.
+#endif
+
+/** ボーレート計算マクロ */
+#define UART1_BAUD_VALUE(baud)                                   \
+    ((uint8_t)(256UL -                                           \
+               (((uint32_t)(F_SYS) + (8UL * (uint32_t)(baud))) / \
+                (16UL * (uint32_t)(baud)))))
+
 typedef struct {
     volatile bool txBusy;
     const uint8_t* volatile txDataPtr;
@@ -55,8 +65,7 @@ ISR(INT_NO_UART1) {
 void uart_begin(void) {
     irq_disable();
 
-    // TODO: UART1_BAUD_RATEから計算する
-    SBAUD1 = 217;
+    SBAUD1 = UART1_BAUD_VALUE(UART1_BAUD_RATE);
 
     // 8/N/1, 倍速, 受信有効, 受信割込み有効
     U1SM0 = 0;
@@ -114,3 +123,5 @@ uint8_t uart_read(void) {
 bool uart_available(void) {
     return uart1.rxHead != uart1.rxTail;
 }
+
+#undef UART1_BAUD_VALUE
