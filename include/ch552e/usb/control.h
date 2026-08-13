@@ -315,13 +315,10 @@ __sfr __at(0xE1) USB_INT_EN;
  *      Bit assignments:
  *      - Bit 7: Reserved
  *      - Bit 6 `bUC_LOW_SPEED`: Select Full-Speed or Low-Speed operation
- *      - Bit 5 `bUC_DEV_PU_EN` / `bUC_SYS_CTRL1`:
- *        USB device and internal pull-up control
+ *      - Bit 5 `bUC_DEV_PU_EN` / `bUC_SYS_CTRL1`: USB device and internal pull-up control
  *      - Bit 4 `bUC_SYS_CTRL0`: USB system-control low bit
- *      - Bit 3 `bUC_INT_BUSY`: Automatically respond with NAK while the
- *        transfer-complete flag remains pending
- *      - Bit 2 `bUC_RESET_SIE`: Reset the USB serial interface engine and
- *        most USB control registers
+ *      - Bit 3 `bUC_INT_BUSY`: Automatically respond with NAK while the transfer-complete flag remains pending
+ *      - Bit 2 `bUC_RESET_SIE`: Reset the USB serial interface engine and most USB control registers
  *      - Bit 1 `bUC_CLR_ALL`: Clear USB interrupt flags and FIFO contents
  *      - Bit 0 `bUC_DMA_EN`: Enable USB DMA
  *
@@ -493,5 +490,52 @@ __sfr __at(0xEB) UEP2_3_MOD;
 
 /** Endpoint 2 single- or double-buffer mode */
 #define bUEP2_BUF_MOD (1u << 0)
+
+/**
+ * @brief
+ *      USB device physical-port control register
+ *      (Reset value: `10xx 0000b`)
+ *
+ * @details
+ *      Controls the USB D+ and D- physical-port interface and reports the
+ *      current logic level present on the USB pins.
+ *
+ *      Bit assignments:
+ *      - Bit 7 `bUD_PD_DIS`: Disable the internal pull-down resistors on UDP/UDM
+ *      - Bit 6: Reserved
+ *      - Bit 5 `bUD_DP_PIN`: Current UDP pin level, read-only
+ *      - Bit 4 `bUD_DM_PIN`: Current UDM pin level, read-only
+ *      - Bit 3: Reserved
+ *      - Bit 2 `bUD_LOW_SPEED`: Select low-speed (`1.5 Mbps`) or full-speed (`12 Mbps`)
+ *      - Bit 1 `bUD_GP_BIT`: Software-defined general-purpose flag
+ *      - Bit 0 `bUD_PORT_EN`: Enable the USB physical port
+ *
+ * @note
+ *      `bUD_PD_DIS` is independent of whether the USB physical interface
+ *      is enabled. The internal pull-down resistors can also be used while
+ *      UDP and UDM are operating as GPIO pins.
+ *
+ * @note
+ *      This register is not bit-addressable and must be accessed as a byte.
+ */
+__sfr __at(0xD1) UDEV_CTRL;
+
+/** Disable the internal pull-down resistors on UDP/UDM */
+#define bUD_PD_DIS (1u << 7)
+
+/** Current UDP pin level, read-only */
+#define bUD_DP_PIN (1u << 5)
+
+/** Current UDM pin level, read-only */
+#define bUD_DM_PIN (1u << 4)
+
+/** Select low-speed (`1.5 Mbps`) or full-speed (`12 Mbps`) */
+#define bUD_LOW_SPEED (1u << 2)
+
+/** Software-defined general-purpose flag */
+#define bUD_GP_BIT (1u << 1)
+
+/** Enable the USB physical port */
+#define bUD_PORT_EN (1u << 0)
 
 #endif /* CH552E_USB_CONTROL_H */

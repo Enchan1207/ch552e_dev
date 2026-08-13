@@ -14,53 +14,6 @@ __sfr16 __at(0xEFEE) UEP1_DMA;
 
 /**
  * @brief
- *      USB device physical-port control register
- *      (Reset value: `10xx 0000b`)
- *
- * @details
- *      Controls the USB D+ and D- physical-port interface and reports the
- *      current logic level present on the USB pins.
- *
- *      Bit assignments:
- *      - Bit 7 `bUD_PD_DIS`: Disable the internal pull-down resistors on UDP/UDM
- *      - Bit 6: Reserved
- *      - Bit 5 `bUD_DP_PIN`: Current UDP pin level, read-only
- *      - Bit 4 `bUD_DM_PIN`: Current UDM pin level, read-only
- *      - Bit 3: Reserved
- *      - Bit 2 `bUD_LOW_SPEED`: Select low-speed (`1.5 Mbps`) or full-speed (`12 Mbps`)
- *      - Bit 1 `bUD_GP_BIT`: Software-defined general-purpose flag
- *      - Bit 0 `bUD_PORT_EN`: Enable the USB physical port
- *
- * @note
- *      `bUD_PD_DIS` is independent of whether the USB physical interface
- *      is enabled. The internal pull-down resistors can also be used while
- *      UDP and UDM are operating as GPIO pins.
- *
- * @note
- *      This register is not bit-addressable and must be accessed as a byte.
- */
-__sfr __at(0xD1) UDEV_CTRL;
-
-/** Disable the internal pull-down resistors on UDP/UDM */
-#define bUD_PD_DIS (1u << 7)
-
-/** Current UDP pin level, read-only */
-#define bUD_DP_PIN (1u << 5)
-
-/** Current UDM pin level, read-only */
-#define bUD_DM_PIN (1u << 4)
-
-/** Select low-speed (`1.5 Mbps`) or full-speed (`12 Mbps`) */
-#define bUD_LOW_SPEED (1u << 2)
-
-/** Software-defined general-purpose flag */
-#define bUD_GP_BIT (1u << 1)
-
-/** Enable the USB physical port */
-#define bUD_PORT_EN (1u << 0)
-
-/**
- * @brief
  *      Endpoint 1 control register
  *      (Reset value: `0x00`)
  *
@@ -96,21 +49,6 @@ __sfr __at(0xD1) UDEV_CTRL;
  *      This register is not bit-addressable and must be accessed as a byte.
  */
 __sfr __at(0xD2) UEP1_CTRL;
-
-/** Expected DATA toggle for SETUP/OUT transactions */
-#define bUEP_R_TOG (1u << 7)
-
-/** DATA toggle to send for IN transactions */
-#define bUEP_T_TOG (1u << 6)
-
-/** Auto-toggle enable after successful transfer */
-#define bUEP_AUTO_TOG (1u << 4)
-
-/** Response to SETUP/OUT transactions */
-#define MASK_UEP_R_RES 0b00001100
-
-/** Response to IN transactions */
-#define MASK_UEP_T_RES 0b00000011
 
 /**
  * @brief
