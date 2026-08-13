@@ -6,6 +6,7 @@ add_executable(blink)
 
 target_sources(blink PRIVATE
     main.c
+    func.c
 )
 
 target_link_libraries(blink PRIVATE 
