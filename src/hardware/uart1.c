@@ -32,19 +32,18 @@ ISR(INT_NO_UART1) {
         uint8_t nextTail = (uart1->rxTail + 1) & (UART1_RX_BUFSIZE - 1);
 
         // バッファがいっぱいの場合は読み捨て
-        if (nextTail == uart1->rxHead) {
-            U1RI = 0;
-            return;
+        if (nextTail != uart1->rxHead) {
+            uart1->rxBuffer[uart1->rxTail] = data;
+            uart1->rxTail = nextTail;
         }
-
-        uart1->rxBuffer[uart1->rxTail] = data;
-        uart1->rxTail = nextTail;
 
         U1RI = 0;
     }
 
     // 送信完了
     if (U1TI) {
+        U1TI = 0;
+
         if (uart1->txRemaining > 0) {
             SBUF1 = *uart1->txDataPtr;
             uart1->txDataPtr++;
@@ -52,8 +51,6 @@ ISR(INT_NO_UART1) {
         } else {
             uart1->txBusy = false;
         }
-
-        U1TI = 0;
     }
 }
 
@@ -79,6 +76,10 @@ void uart_write(uart1_ctx_t* ctx, const uint8_t* const data, size_t len) {
 void uart_write_noblock(uart1_ctx_t* ctx, const uint8_t* const data, size_t len) {
     while (ctx->txBusy);
 
+    if (len == 0) {
+        return;
+    }
+
     ctx->txDataPtr = data;
     ctx->txRemaining = len - 1;
     ctx->txBusy = true;
@@ -91,7 +92,7 @@ void uart_write_noblock(uart1_ctx_t* ctx, const uint8_t* const data, size_t len)
 void uart_print(uart1_ctx_t* ctx, const char* const str) {
     uart_print_noblock(ctx, str);
 
-    while (ctx->txRemaining > 0);
+    while (ctx->txBusy);
 }
 
 void uart_print_noblock(uart1_ctx_t* ctx, const char* const str) {
