@@ -1,6 +1,5 @@
 #include "hardware/uart1.h"
 
-#include "ch552e/interrupt.h"
 #include "ch552e/io.h"
 
 struct uart1_ctx_t {
@@ -81,11 +80,12 @@ void uart_write_noblock(uart1_ctx_t* ctx, const uint8_t* const data, size_t len)
     while (ctx->txBusy);
 
     ctx->txDataPtr = data;
-    ctx->txRemaining = len;
+    ctx->txRemaining = len - 1;
     ctx->txBusy = true;
 
     // 最初の1byteを書いておく
-    SBUF1 = *uart1->txDataPtr;
+    SBUF1 = *ctx->txDataPtr;
+    ctx->txDataPtr++;
 }
 
 void uart_print(uart1_ctx_t* ctx, const char* const str) {

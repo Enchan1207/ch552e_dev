@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "ch552e/interrupt.h"
+
 #ifndef UART1_RX_BUFSIZE
 /// @brief 受信バッファサイズ
 #define UART1_RX_BUFSIZE 32
@@ -18,6 +20,8 @@
 /// @brief UART1ボーレート
 #define UART1_BAUD_RATE 9600
 #endif
+
+ISR(INT_NO_UART1);
 
 /// @brief UART1コンテキスト
 typedef struct uart1_ctx_t uart1_ctx_t;
