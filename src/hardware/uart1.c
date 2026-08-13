@@ -34,6 +34,7 @@ ISR(INT_NO_UART1) {
 
         // バッファがいっぱいの場合は読み捨て
         if (nextTail == uart1->rxHead) {
+            U1RI = 0;
             return;
         }
 
@@ -60,15 +61,15 @@ ISR(INT_NO_UART1) {
 void uart_begin(void) {
     irq_disable();
 
-    SBAUD1 = 0;
+    // TODO: UART1_BAUD_RATEから計算する
+    SBAUD1 = 217;
 
     // 8/N/1, 倍速, 受信有効, 受信割込み有効
     U1SM0 = 0;
     U1SMOD = 1;
     U1REN = 1;
 
-    // TODO: UART1_BAUD_RATEから計算する
-    IE_UART1 = 217;
+    IE_UART1 = 1;
 }
 
 void uart_write(uart1_ctx_t* ctx, const uint8_t* const data, size_t len) {
