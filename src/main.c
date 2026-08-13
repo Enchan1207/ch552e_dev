@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "bit_util.h"
+#include "func.h"
 #include "hardware/uart1.h"
 
 /** EP0のDMA転送先xRAMアドレス */
@@ -14,12 +15,17 @@ __xdata __at(USB_EP0_DMA_ADDRESS)
 /** xRAM上のEP0のバッファ */
 uint8_t ep0_buffer[64];
 
-uint8_t usbIntflags = 0x00;
+volatile uint8_t usb_interrupt_flags = 0x00;
+volatile uint8_t usb_interrupt_status = 0x00;
+volatile uint8_t usb_rx_length = 0x00;
 
 ISR(INT_NO_USB) {
-    usbIntflags = USB_INT_FG;
+    usb_interrupt_flags = USB_INT_FG;
 
     if (UIF_TRANSFER) {
+        usb_interrupt_status = USB_INT_ST;
+        usb_rx_length = USB_RX_LEN;
+
         // TODO
         UIF_TRANSFER = 0;
     }
@@ -33,15 +39,6 @@ ISR(INT_NO_USB) {
         // TODO
         UIF_SUSPEND = 0;
     }
-}
-
-void print_hex(uint8_t value) {
-    char buf[9] = "00000000";
-    for (size_t i = 0; i < 8; i++) {
-        buf[i] = (value & (1 << (7 - i))) ? '1' : '0';
-    }
-
-    uart_print(buf);
 }
 
 int main(void) {
@@ -74,10 +71,21 @@ int main(void) {
     uart_print("Initialized.\r\n");
 
     while (1) {
-        if (usbIntflags != 0) {
-            print_hex(usbIntflags);
+        if (usb_interrupt_flags != 0) {
+            uint8_t buf = usb_interrupt_flags;
+
+            uart_print_bin(buf);
             uart_print("\r\n");
-            usbIntflags = 0x00;
+
+            if (buf & 0b10) {
+                uart_print("UIF_TRANSFER\r\n");
+                uart_print_bin(usb_interrupt_status);
+                uart_print("\r\n");
+                uart_print_dec(usb_rx_length);
+                uart_print("\r\n");
+            }
+
+            usb_interrupt_flags = 0x00;
         }
     }
 }
