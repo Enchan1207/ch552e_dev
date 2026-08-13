@@ -43,8 +43,7 @@ int main(void) {
     static const char __xdata message[] = "Hello from xdata!\r\n";
 
     while (1) {
-        uart_print(uart1, message);
-
+        uart_print(message);
         delay();
     }
 }
