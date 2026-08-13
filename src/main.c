@@ -40,8 +40,11 @@ int main(void) {
 
     irq_enable();
 
+    static const char __xdata message[] = "Hello from xdata!\r\n";
+
     while (1) {
-        uint8_t data = uart_read(uart1);
-        uart_write(uart1, &data, 1);
+        uart_print(uart1, message);
+
+        delay();
     }
 }
