@@ -1,10 +1,11 @@
+#include <ch552e/interrupt.h>
+#include <ch552e/io.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "bit_util.h"
-#include "hardware/ch552e.h"
-#include "isr_util.h"
+#include "hardware/uart1.h"
 
 // EP0のDMA転送先xRAMアドレス
 #define USB_ENDPOINT0_ADDR 0x0000
@@ -275,35 +276,23 @@ int main(void) {
     // - IN: NAK
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
 
-    // エンドポイント0送信バッファ データ長を0に設定
-    UEP0_T_LEN = 0x00;
+    uart_begin();
 
-    // デバイスアドレスを0にしておく
-    USB_DEV_AD = 0x00;
+    // P1.4 (インジケータ) を出力にする
+    P1_4 = 0;
+    reset(P1_MOD_OC, 4);
+    set(P1_DIR_PU, 4);
 
-    // DMA転送アドレスを設定
-    UEP0_DMA = USB_ENDPOINT0_ADDR;
+    P1_4 = 1;
+    delay();
+    P1_4 = 0;
 
-    // EP0ステートマシンを初期化
-    usb_ep0_reset();
+    irq_enable();
 
-    // USB割込み有効化
-    USB_INT_EN = 0b00000111;
-    IE_USB = 1;
-
-    // Full-Speed USBポートを有効化
-    UDEV_CTRL = bUD_PD_DIS | bUD_PORT_EN;
-
-    // 内部D+プルアップを有効化, DMA有効化
-    USB_CTRL =
-        bUC_DEV_PU_EN |
-        bUC_INT_BUSY |
-        bUC_DMA_EN;
-
-    // グローバル割込み有効化
-    EA = 1;
+    static const char __xdata message[] = "Hello from xdata!\r\n";
 
     while (1) {
-        // loop
+        uart_print(message);
+        delay();
     }
 }
