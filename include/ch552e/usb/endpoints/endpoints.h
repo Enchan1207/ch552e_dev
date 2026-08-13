@@ -19,7 +19,15 @@
 /** Response to SETUP/OUT transactions */
 #define MASK_UEP_R_RES 0b00001100
 
+#define UEP_R_RES_ACK 0b00000000
+#define UEP_R_RES_NAK 0b00001000
+#define UEP_R_RES_STALL 0b00001100
+
 /** Response to IN transactions */
 #define MASK_UEP_T_RES 0b00000011
+
+#define UEP_T_RES_ACK 0b00000000
+#define UEP_T_RES_NAK 0b00000010
+#define UEP_T_RES_STALL 0b00000011
 
 #endif /* CH552_USB_ENDPOINTS_H */
