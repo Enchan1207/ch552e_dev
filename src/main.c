@@ -83,6 +83,10 @@ int main(void) {
                 uart_print("\r\n");
                 uart_print_dec(usb_rx_length);
                 uart_print("\r\n");
+                for (size_t i = 0; i < usb_rx_length; i++) {
+                    uart_print_hex(ep0_buffer[i]);
+                }
+                uart_print("\r\n");
             }
 
             usb_interrupt_flags = 0x00;
