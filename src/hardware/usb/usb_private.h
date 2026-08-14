@@ -1,7 +1,15 @@
 #ifndef HARDWARE_USB_PRIVATE_H
 #define HARDWARE_USB_PRIVATE_H
 
+#include <ch552e/io.h>
 #include <stdint.h>
+
+/** EP0のDMA転送先xRAMアドレス */
+#define USB_EP0_DMA_ADDRESS 0x0000
+
+extern __xdata __at(USB_EP0_DMA_ADDRESS)
+/** xRAM上のEP0のバッファ */
+uint8_t ep0_buffer[64];
 
 typedef struct {
     uint8_t bmRequestType;
@@ -33,9 +41,15 @@ typedef struct {
 
 typedef enum usb_request_type_t {
     REQ_SET_ADDRESS = 0x05,
+    REQ_GET_DESCRIPTOR = 0x06,
 
     /** なんのリクエストも受け取っていない */
     REQ_NONE = 0xFF,
 } usb_request_type_t;
+
+typedef enum usb_descriptor_type_t {
+    DESCRIPTOR_TYPE_DEVICE = 0x01,
+    DESCRIPTOR_TYPE_CONFIGURATION = 0x02,
+} usb_descriptor_type_t;
 
 #endif /* HARDWARE_USB_PRIVATE_H */
