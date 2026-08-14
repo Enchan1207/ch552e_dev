@@ -184,10 +184,10 @@ __sfr __at(0xD9) USB_INT_ST;
 /** Endpoint number field */
 #define MASK_UIS_ENDP 0b00001111
 
-#define UIS_TOKEN_OUT 0
-#define UIS_TOKEN_SOF 1
-#define UIS_TOKEN_IN 2
-#define UIS_TOKEN_SETUP 3
+#define UIS_TOKEN_OUT 0b00000000
+#define UIS_TOKEN_SOF 0b00010000
+#define UIS_TOKEN_IN 0b00100000
+#define UIS_TOKEN_SETUP 0b00110000
 
 /**
  * @brief
