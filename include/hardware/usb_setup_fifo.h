@@ -10,6 +10,8 @@
 #define USB_SETUP_FIFO_SIZE 8
 #endif
 
+#define USB_SETUP_FIFO_ADDRESS 0x0040
+
 #if (USB_SETUP_FIFO_SIZE & (USB_SETUP_FIFO_SIZE - 1)) != 0
 #error "USB_SETUP_FIFO_SIZE must be a power of 2"
 #endif
