@@ -2,22 +2,6 @@
 #define HARDWARE_USB_H
 
 #include <ch552e/interrupt.h>
-#include <ch552e/io.h>
-
-/** (デバッグ用) 最後にUSB割込みがかかった時のフラグ */
-extern volatile uint8_t usb_debug_interrupt_flags;
-
-/** (デバッグ用) 最後にUSB割込み(UIF_TRANSFER)がかかった時の状態 */
-extern volatile uint8_t usb_debug_interrupt_status;
-
-/** (デバッグ用) 最後にUSB割込み(UIF_TRANSFER)がかかった時のデータ長 */
-extern volatile uint8_t usb_debug_interrupt_rx_length;
-
-extern volatile uint8_t usb_debug_ep0_ctrl;
-extern volatile uint8_t usb_debug_ep0_t_len;
-
-/** (デバッグ用) EP0バッファ */
-extern __xdata uint8_t* usb_debug_ep0_buffer_ptr;
 
 ISR(INT_NO_USB);
 

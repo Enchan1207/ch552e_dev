@@ -1,21 +1,13 @@
 #include "hardware/usb.h"
-#include "hardware/usb_setup_fifo.h"
 
 #include <ch552e/io.h>
 #include <stdint.h>
 
+#include "hardware/usb_setup_fifo.h"
 #include "usb_private.h"
 
 __xdata __at(USB_EP0_DMA_ADDRESS)
 uint8_t ep0_buffer[64];
-
-__xdata uint8_t* usb_debug_ep0_buffer_ptr = ep0_buffer;
-
-volatile uint8_t usb_debug_interrupt_flags;
-volatile uint8_t usb_debug_interrupt_status;
-volatile uint8_t usb_debug_interrupt_rx_length;
-volatile uint8_t usb_debug_ep0_ctrl;
-volatile uint8_t usb_debug_ep0_t_len;
 
 static inline void usb_handle_bus_reset(void);
 static inline void usb_handle_transfer(uint8_t status, uint8_t length);
@@ -51,14 +43,9 @@ uint8_t device_address_candidate = 0x00;
 usb_request_type_t latest_request_type = REQ_NONE;
 
 ISR(INT_NO_USB) {
-    usb_debug_interrupt_flags = USB_INT_FG;
-
     if (UIF_TRANSFER) {
         uint8_t status = USB_INT_ST;
         uint8_t length = USB_RX_LEN;
-
-        usb_debug_interrupt_status = status;
-        usb_debug_interrupt_rx_length = length;
 
         usb_handle_transfer(status, length);
 
@@ -134,6 +121,8 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
             // malformed SETUP packet
             UEP0_T_LEN = 0x00;
             UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
+
+            P1_4 = 1;
             return;
         }
 
@@ -156,8 +145,7 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
                 UEP_R_RES_ACK |
                 UEP_T_RES_ACK;
 
-            usb_debug_ep0_ctrl = UEP0_CTRL;
-            usb_debug_ep0_t_len = UEP0_T_LEN;
+            P1_4 = 0;
             return;
         }
 
@@ -183,13 +171,14 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
                 UEP_R_RES_ACK |
                 UEP_T_RES_ACK;
 
-            usb_debug_ep0_ctrl = UEP0_CTRL;
-            usb_debug_ep0_t_len = UEP0_T_LEN;
+            P1_4 = 0;
             return;
         }
 
         UEP0_T_LEN = 0x00;
         UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
+
+        P1_4 = 1;
         return;
     }
 
@@ -213,9 +202,6 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
                 bUEP_R_TOG |
                 UEP_R_RES_ACK |
                 UEP_T_RES_NAK;
-
-            usb_debug_ep0_ctrl = UEP0_CTRL;
-            usb_debug_ep0_t_len = UEP0_T_LEN;
             return;
         }
     }
