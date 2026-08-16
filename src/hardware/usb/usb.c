@@ -1,4 +1,5 @@
 #include "hardware/usb.h"
+#include "hardware/usb_setup_fifo.h"
 
 #include <ch552e/io.h>
 #include <stdint.h>
@@ -79,6 +80,7 @@ ISR(INT_NO_USB) {
 void usb_init(void) {
     irq_disable();
     IE_USB = 0;
+    usb_setup_fifo_init();
 
     USB_CTRL = 0x00;
 
@@ -136,6 +138,7 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
         }
 
         usb_setup_packet_t __xdata* packet = (usb_setup_packet_t __xdata*)ep0_buffer;
+        usb_setup_fifo_push_isr(packet);
 
         // SET_ADDRESS
         if (packet->bmRequestType == (MREQ_DIRECTION_H2D | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&

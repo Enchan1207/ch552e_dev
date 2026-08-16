@@ -8,8 +8,11 @@
 #include "func.h"
 #include "hardware/uart1.h"
 #include "hardware/usb.h"
+#include "hardware/usb_setup_fifo.h"
 
 int main(void) {
+    usb_setup_packet_t setup_packet;
+
     // クロック設定 (内蔵オシレータ, 6MHz)
     SAFE_MOD = 0x55;
     SAFE_MOD = 0xAA;
@@ -30,6 +33,23 @@ int main(void) {
     uart_print("Initialized.\r\n");
 
     while (1) {
+        while (usb_setup_fifo_pop(&setup_packet)) {
+            uart_print("SETUP bmRequestType:0x");
+            uart_print_hex(setup_packet.bmRequestType);
+            uart_print(" bRequest:0x");
+            uart_print_hex(setup_packet.bRequest);
+            uart_print(" wValue:0x");
+            uart_print_hex((uint8_t)(setup_packet.wValue >> 8));
+            uart_print_hex((uint8_t)setup_packet.wValue);
+            uart_print(" wIndex:0x");
+            uart_print_hex((uint8_t)(setup_packet.wIndex >> 8));
+            uart_print_hex((uint8_t)setup_packet.wIndex);
+            uart_print(" wLength:0x");
+            uart_print_hex((uint8_t)(setup_packet.wLength >> 8));
+            uart_print_hex((uint8_t)setup_packet.wLength);
+            uart_print("\r\n");
+        }
+
         if (usb_debug_interrupt_flags != 0) {
             uint8_t buf = usb_debug_interrupt_flags;
 

@@ -4,20 +4,14 @@
 #include <ch552e/io.h>
 #include <stdint.h>
 
+#include "hardware/usb_setup_fifo.h"
+
 /** EP0のDMA転送先xRAMアドレス */
 #define USB_EP0_DMA_ADDRESS 0x0000
 
 extern __xdata __at(USB_EP0_DMA_ADDRESS)
 /** xRAM上のEP0のバッファ */
 uint8_t ep0_buffer[64];
-
-typedef struct {
-    uint8_t bmRequestType;
-    uint8_t bRequest;
-    uint16_t wValue;
-    uint16_t wIndex;
-    uint16_t wLength;
-} usb_setup_packet_t;
 
 // bmRequestType
 
