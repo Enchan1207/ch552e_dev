@@ -2,6 +2,7 @@
 #define HARDWARE_USB_PRIVATE_H
 
 #include <ch552e/io.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "usb_setup_fifo.h"
@@ -14,6 +15,12 @@ typedef enum usb_ep0_state_t {
 
     /** デバイスアドレス確定待ち */
     USB_EP0_STATE_ADDRESS_PENDING,
+
+    /** データ送信中 */
+    USB_EP0_STATE_DATA_IN,
+
+    /** Status OUT待機 */
+    USB_EP0_STATE_STATUS_OUT,
 } usb_ep0_state_t;
 
 /** USBコンテキスト */
@@ -24,14 +31,15 @@ typedef struct usb_ctx_t {
     /** デバイスアドレス候補 */
     uint8_t device_address_candidate;
 
-    /**
-     * @brief 最後に受け取ったSETUPパケットの `bRequest` 値
-     * @note -1はSETUPパケットを一度も受け取っていない事を示します。
-     */
-    int8_t latest_request_type;
-} usb_ctx_t;
+    /** 現在送信中のデータへのポインタ */
+    const __code uint8_t* tx_data;
 
-extern usb_ctx_t ctx;
+    /** 現在送信中のデータ長 */
+    size_t tx_length;
+
+    /** 現在送信中のデータ位置 */
+    size_t tx_offset;
+} usb_ctx_t;
 
 /**
  * @brief USBコンテキストをリセットする
@@ -53,7 +61,7 @@ uint8_t ep0_buffer[64];
  * @param token パケットのトークン
  * @param length パケットの長さ
  */
-void usb_ep0_handle_packet(uint8_t token, uint8_t length);
+void usb_ep0_handle_packet(usb_ctx_t* ctx, uint8_t token, uint8_t length);
 
 // MARK: - bmRequestType
 
