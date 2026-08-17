@@ -6,6 +6,26 @@
 
 ISR(INT_NO_USB);
 
+// MARK: - bDescriptorType
+
+/** デバイスディスクリプタ */
+extern const __code usb_device_descriptor_t* device_descriptor;
+
+/** デバイスディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_DEVICE 0x01
+
+/** コンフィギュレーションディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_CONFIGURATION 0x02
+
+/** ストリングディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_STRING 0x03
+
+/** インタフェースディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_INTERFACE 0x04
+
+/** エンドポイントディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_ENDPOINT 0x05
+
 /** デバイスディスクリプタ */
 typedef struct usb_device_descriptor_t {
     uint8_t bLength;

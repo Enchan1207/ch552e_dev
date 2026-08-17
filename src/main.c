@@ -8,6 +8,23 @@
 #include "hardware/usb.h"
 #include "hardware/usb_setup_fifo.h"
 
+static const __code usb_device_descriptor_t device_descriptor = {
+    .bLength = 18,
+    .bDescriptorType = USB_DESCRIPTOR_TYPE_DEVICE,
+    .bcdUSB = 0x0200,
+    .bDeviceClass = 0x00,
+    .bDeviceSubClass = 0x00,
+    .bDeviceProtocol = 0x00,
+    .bMaxPacketSize0 = 64,
+    .idVendor = 0x1234,
+    .idProduct = 0x5678,
+    .bcdDevice = 0x0100,
+    .iManufacturer = 0x00,
+    .iProduct = 0x00,
+    .iSerialNumber = 0x00,
+    .bNumConfigurations = 0x01,
+};
+
 int main(void) {
     usb_setup_packet_t setup_packet;
 
@@ -25,6 +42,7 @@ int main(void) {
     uart_begin();
 
     usb_init();
+    usb_set_device_descriptor(&device_descriptor);
 
     irq_enable();
 
