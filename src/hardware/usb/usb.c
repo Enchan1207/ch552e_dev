@@ -11,8 +11,14 @@
 __xdata __at(USB_EP0_DMA_ADDRESS)
 uint8_t ep0_buffer[64];
 
-static inline void usb_handle_bus_reset(void);
-static inline void usb_handle_transfer(uint8_t status, uint8_t length);
+static void usb_handle_bus_reset(void);
+static void usb_handle_transfer(uint8_t status, uint8_t length);
+
+/** EP0をSTALL状態にする */
+static inline void usb_ep0_stall(void) {
+    UEP0_T_LEN = 0x00;
+    UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
+}
 
 // TODO　ステートマシンに起こす
 uint8_t device_address_candidate = 0x00;
@@ -70,7 +76,7 @@ void usb_init(void) {
     IE_USB = 1;
 }
 
-static inline void usb_handle_bus_reset(void) {
+static void usb_handle_bus_reset(void) {
     // TODO コンテキストもリセットする
     USB_DEV_AD = 0x00;
     device_address_candidate = 0x00;
@@ -79,15 +85,13 @@ static inline void usb_handle_bus_reset(void) {
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
 }
 
-static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
+static void usb_handle_transfer(uint8_t status, uint8_t length) {
     uint8_t endpoint = status & MASK_UIS_ENDP;
     uint8_t token = status & MASK_UIS_TOKEN;
 
     if (endpoint == 0 && token == UIS_TOKEN_SETUP) {
         if (length != 8) {
-            // malformed SETUP packet
-            UEP0_T_LEN = 0x00;
-            UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
+            usb_ep0_stall();
 
             P1_4 = 1;
             return;
@@ -108,8 +112,7 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
 
             P1_4 = 0;
         } else {
-            UEP0_T_LEN = 0x00;
-            UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
+            usb_ep0_stall();
 
             P1_4 = 1;
         }
@@ -151,7 +154,7 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
     }
 }
 
-static inline int8_t usb_ep0_handle_setup(const usb_setup_packet_t __xdata* packet) {
+static int8_t usb_ep0_handle_setup(const usb_setup_packet_t __xdata* packet) {
     // SET_ADDRESS
     if (packet->bmRequestType == (MREQ_DIRECTION_H2D | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
         packet->bRequest == REQ_SET_ADDRESS &&
