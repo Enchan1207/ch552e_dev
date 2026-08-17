@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "hardware/usb/usb_setup_fifo.h"
 #include "usb_private.h"
 
 __xdata __at(USB_EP0_DMA_ADDRESS)

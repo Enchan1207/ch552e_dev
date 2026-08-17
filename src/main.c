@@ -6,7 +6,9 @@
 #include "func.h"
 #include "hardware/uart1.h"
 #include "hardware/usb/usb.h"
-#include "hardware/usb/usb_setup_fifo.h"
+
+#define USB_TEST_VENDOR_ID 0x1209
+#define USB_TEST_PRODUCT_ID 0x0001
 
 static const __code usb_device_descriptor_t device_descriptor = {
     .bLength = 18,
@@ -16,8 +18,8 @@ static const __code usb_device_descriptor_t device_descriptor = {
     .bDeviceSubClass = 0x00,
     .bDeviceProtocol = 0x00,
     .bMaxPacketSize0 = 64,
-    .idVendor = 0x1234,
-    .idProduct = 0x5678,
+    .idVendor = USB_TEST_VENDOR_ID,
+    .idProduct = USB_TEST_PRODUCT_ID,
     .bcdDevice = 0x0100,
     .iManufacturer = 0x00,
     .iProduct = 0x00,
@@ -25,8 +27,27 @@ static const __code usb_device_descriptor_t device_descriptor = {
     .bNumConfigurations = 0x01,
 };
 
+static const __code usb_configuration_descriptor_t configuration_descriptor = {
+    .bLength = 0x09,
+    .bDescriptorType = USB_DESCRIPTOR_TYPE_CONFIGURATION,
+
+    // TODO ディスクリプタ長を計算・設定
+    .wTotalLength = 0x0000,
+
+    .bNumInterface = 0x01,
+    .bConfigurationValue = 0x01,
+
+    .iConfiguration = 0x00,
+    .bmAttributes = 0x00,
+    .bMaxPower = USB_MAX_POWER(100),
+};
+
 const __code usb_device_descriptor_t* usb_get_device_descriptor(void) {
     return &device_descriptor;
+}
+
+const __code usb_configuration_descriptor_t* usb_get_configuration_descriptor(void) {
+    return &configuration_descriptor;
 }
 
 int main(void) {

@@ -34,6 +34,11 @@
 /** エンドポイントディスクリプタ: 出力 */
 #define USB_ENDPOINT_DIRECTION_OUT 0b00000000
 
+// MARK: bMaxPower (configuration descriptor)
+
+/** bMaxPower値の設定ヘルパ (単位: mA) */
+#define USB_MAX_POWER(ma) ((ma) >> 1)
+
 // MARK: bmAttributes (endpoint descriptor)
 
 /** エンドポイントディスクリプタ: 属性mask */

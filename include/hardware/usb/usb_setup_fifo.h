@@ -1,10 +1,9 @@
 #ifndef HARDWARE_USB_SETUP_FIFO_H
 #define HARDWARE_USB_SETUP_FIFO_H
 
+#include <sdcc/identifier.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "sdcc/identifier.h"
 
 #ifndef USB_SETUP_FIFO_SIZE
 #define USB_SETUP_FIFO_SIZE 8

@@ -1,4 +1,4 @@
-#include "hardware/usb_setup_fifo.h"
+#include "hardware/usb/usb_setup_fifo.h"
 
 typedef struct {
     volatile uint8_t head;
@@ -6,7 +6,8 @@ typedef struct {
     usb_setup_packet_t entries[USB_SETUP_FIFO_SIZE];
 } usb_setup_fifo_t;
 
-static __xdata __at(USB_SETUP_FIFO_ADDRESS) usb_setup_fifo_t fifo;
+static __xdata __at(USB_SETUP_FIFO_ADDRESS)
+usb_setup_fifo_t fifo;
 
 void usb_setup_fifo_init(void) {
     fifo.head = 0;

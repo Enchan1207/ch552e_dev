@@ -1,7 +1,7 @@
 #ifndef CH552E_USB_ENDPOINTS_EP2_H
 #define CH552E_USB_ENDPOINTS_EP2_H
 
-#include "sdcc/identifier.h"
+#include <sdcc/identifier.h>
 
 /**
  * @brief

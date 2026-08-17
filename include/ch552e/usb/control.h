@@ -5,7 +5,7 @@
  * USB 制御・config系レジスタ
  */
 
-#include "sdcc/identifier.h"
+#include <sdcc/identifier.h>
 
 /**
  * @brief

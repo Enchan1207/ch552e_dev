@@ -1,9 +1,8 @@
 #ifndef CH552E_MEMORY_H
 #define CH552E_MEMORY_H
 
+#include <sdcc/identifier.h>
 #include <stddef.h>
-
-#include "sdcc/identifier.h"
 
 /**
  * @brief code領域からxRAM領域へデータをコピーする
