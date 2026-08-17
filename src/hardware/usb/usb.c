@@ -122,10 +122,9 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
             (packet->wValue & 0xFF) == 0x00) {
             latest_request_type = REQ_GET_DESCRIPTOR;
 
+            const __code usb_device_descriptor_t* device_descriptor = usb_get_device_descriptor();
             uint8_t descriptor_length = device_descriptor->bLength;
             uint8_t packet_length = descriptor_length > packet->wLength ? packet->wLength : descriptor_length;
-
-            *(usb_device_descriptor_t*)ep0_buffer = *device_descriptor;
 
             memcpy_code_to_xdata(ep0_buffer, device_descriptor, sizeof(usb_device_descriptor_t));
 

@@ -9,9 +9,6 @@ ISR(INT_NO_USB);
 // MARK: - bDescriptorType
 
 /** デバイスディスクリプタ */
-extern const __code usb_device_descriptor_t* device_descriptor;
-
-/** デバイスディスクリプタ */
 #define USB_DESCRIPTOR_TYPE_DEVICE 0x01
 
 /** コンフィギュレーションディスクリプタ */
@@ -55,10 +52,11 @@ typedef struct usb_device_descriptor_t {
 void usb_init(void);
 
 /**
- * @brief デバイスディスクリプタを設定する
+ * @brief デバイスディスクリプタ取得フック
+ * @note この関数はユーザプログラムで実装する必要があります。
  *
- * @param descriptor
+ * @return const __code* デバイスディスクリプタへのポインタ
  */
-void usb_set_device_descriptor(const __code usb_device_descriptor_t* descriptor);
+extern const __code usb_device_descriptor_t* usb_get_device_descriptor(void);
 
 #endif /* HARDWARE_USB_H */

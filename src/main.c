@@ -25,6 +25,10 @@ static const __code usb_device_descriptor_t device_descriptor = {
     .bNumConfigurations = 0x01,
 };
 
+const __code usb_device_descriptor_t* usb_get_device_descriptor(void) {
+    return &device_descriptor;
+}
+
 int main(void) {
     usb_setup_packet_t setup_packet;
 
@@ -42,7 +46,6 @@ int main(void) {
     uart_begin();
 
     usb_init();
-    usb_set_device_descriptor(&device_descriptor);
 
     irq_enable();
 
