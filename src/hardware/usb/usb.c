@@ -12,7 +12,6 @@ uint8_t ep0_buffer[64];
 
 static inline void usb_handle_bus_reset(void);
 static inline void usb_handle_transfer(uint8_t status, uint8_t length);
-static inline void usb_arm_ep0_for_setup(void);
 
 // TODO　ステートマシンに起こす
 uint8_t device_address_candidate = 0x00;
@@ -20,17 +19,12 @@ usb_request_type_t latest_request_type = REQ_NONE;
 
 ISR(INT_NO_USB) {
     if (UIF_TRANSFER) {
-        uint8_t status = USB_INT_ST;
-        uint8_t length = USB_RX_LEN;
-
-        usb_handle_transfer(status, length);
-
+        usb_handle_transfer(USB_INT_ST, USB_RX_LEN);
         UIF_TRANSFER = 0;
     }
 
     if (UIF_BUS_RST) {
         usb_handle_bus_reset();
-
         UIF_BUS_RST = 0;
     }
 
@@ -80,10 +74,6 @@ static inline void usb_handle_bus_reset(void) {
     USB_DEV_AD = 0x00;
     device_address_candidate = 0x00;
     latest_request_type = REQ_NONE;
-    usb_arm_ep0_for_setup();
-}
-
-static inline void usb_arm_ep0_for_setup(void) {
     UEP0_T_LEN = 0x00;
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
 }
@@ -164,7 +154,8 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
 
             device_address_candidate = 0x00;
             latest_request_type = REQ_NONE;
-            usb_arm_ep0_for_setup();
+            UEP0_T_LEN = 0x00;
+            UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
             return;
         }
 
