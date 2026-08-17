@@ -1,4 +1,4 @@
-#include "hardware/usb/usb_setup_fifo.h"
+#include "usb_setup_fifo.h"
 
 typedef struct {
     volatile uint8_t head;

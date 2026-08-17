@@ -66,6 +66,8 @@ int main(void) {
 
     uart_begin();
 
+    usb_setup_fifo_init();
+
     usb_init();
 
     irq_enable();

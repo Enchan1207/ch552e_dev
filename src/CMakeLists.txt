@@ -8,6 +8,7 @@ add_executable(blink)
 target_sources(blink PRIVATE
     main.c
     func.c
+    setup_fifo.c
 )
 
 target_link_libraries(blink PRIVATE 
