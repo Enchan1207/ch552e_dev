@@ -1,6 +1,7 @@
-#include "hardware/uart1.h"
+#include <ch552e/io.h>
+#include <hardware/uart1.h>
 
-#include "ch552e/io.h"
+#include "uart1_private.h"
 
 #ifndef F_SYS
 #error F_SYS is not defined.
@@ -12,17 +13,7 @@
                (((uint32_t)(F_SYS) + (8UL * (uint32_t)(baud))) / \
                 (16UL * (uint32_t)(baud)))))
 
-typedef struct {
-    volatile bool txBusy;
-    const uint8_t* volatile txDataPtr;
-    volatile size_t txRemaining;
-
-    volatile uint8_t rxBuffer[UART1_RX_BUFSIZE];
-    volatile uint8_t rxHead;
-    volatile uint8_t rxTail;
-} uart1_ctx_t;
-
-static uart1_ctx_t uart1 = {
+uart1_ctx_t uart1 = {
     .txBusy = false,
     .txDataPtr = NULL,
     .txRemaining = 0,
