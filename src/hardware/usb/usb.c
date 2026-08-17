@@ -2,6 +2,7 @@
 
 #include <ch552e/io.h>
 #include <ch552e/memory.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "hardware/usb_setup_fifo.h"
@@ -95,55 +96,24 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
         usb_setup_packet_t __xdata* packet = (usb_setup_packet_t __xdata*)ep0_buffer;
         usb_setup_fifo_push_isr(packet);
 
-        // SET_ADDRESS
-        if (packet->bmRequestType == (MREQ_DIRECTION_H2D | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
-            packet->bRequest == REQ_SET_ADDRESS &&
-            packet->wIndex == 0 &&
-            packet->wLength == 0 &&
-            packet->wValue <= 127) {
-            latest_request_type = REQ_SET_ADDRESS;
-            device_address_candidate = packet->wValue;
+        int8_t handle_result = usb_ep0_handle_setup(packet);
 
+        if (handle_result > 0) {
+            UEP0_T_LEN = handle_result;
+            UEP0_CTRL =
+                bUEP_T_TOG |
+                bUEP_R_TOG |
+                UEP_R_RES_ACK |
+                UEP_T_RES_ACK;
+
+            P1_4 = 0;
+        } else {
             UEP0_T_LEN = 0x00;
-            UEP0_CTRL =
-                bUEP_T_TOG |
-                bUEP_R_TOG |
-                UEP_R_RES_ACK |
-                UEP_T_RES_ACK;
+            UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
 
-            P1_4 = 0;
-            return;
+            P1_4 = 1;
         }
 
-        // GET_DESCRIPTOR
-        if (packet->bmRequestType == (MREQ_DIRECTION_D2H | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
-            packet->bRequest == REQ_GET_DESCRIPTOR &&
-            (packet->wValue >> 8) == DESCRIPTOR_TYPE_DEVICE &&
-            (packet->wValue & 0xFF) == 0x00) {
-            latest_request_type = REQ_GET_DESCRIPTOR;
-
-            const __code usb_device_descriptor_t* device_descriptor = usb_get_device_descriptor();
-            uint8_t descriptor_length = device_descriptor->bLength;
-            uint8_t packet_length = descriptor_length > packet->wLength ? packet->wLength : descriptor_length;
-
-            memcpy_code_to_xdata(ep0_buffer, device_descriptor, sizeof(usb_device_descriptor_t));
-
-            UEP0_T_LEN = packet_length;
-
-            UEP0_CTRL =
-                bUEP_T_TOG |
-                bUEP_R_TOG |
-                UEP_R_RES_ACK |
-                UEP_T_RES_ACK;
-
-            P1_4 = 0;
-            return;
-        }
-
-        UEP0_T_LEN = 0x00;
-        UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
-
-        P1_4 = 1;
         return;
     }
 
@@ -179,4 +149,41 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
             UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
         }
     }
+}
+
+static inline int8_t usb_ep0_handle_setup(const usb_setup_packet_t __xdata* packet) {
+    // SET_ADDRESS
+    if (packet->bmRequestType == (MREQ_DIRECTION_H2D | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
+        packet->bRequest == REQ_SET_ADDRESS &&
+        packet->wIndex == 0 &&
+        packet->wLength == 0 &&
+        packet->wValue <= 127) {
+        latest_request_type = REQ_SET_ADDRESS;
+        device_address_candidate = packet->wValue;
+
+        return 0x00;
+    }
+
+    // GET_DESCRIPTOR
+    if (packet->bmRequestType == (MREQ_DIRECTION_D2H | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
+        packet->bRequest == REQ_GET_DESCRIPTOR &&
+        (packet->wValue >> 8) == DESCRIPTOR_TYPE_DEVICE &&
+        packet->wIndex == 0 &&
+        (packet->wValue & 0xFF) == 0x00) {
+        latest_request_type = REQ_GET_DESCRIPTOR;
+
+        const __code usb_device_descriptor_t* device_descriptor = usb_get_device_descriptor();
+
+        uint8_t descriptor_length = device_descriptor->bLength;
+        uint8_t packet_length =
+            descriptor_length > packet->wLength
+                ? (uint8_t)packet->wLength
+                : descriptor_length;
+
+        memcpy_code_to_xdata(ep0_buffer, device_descriptor, packet_length);
+
+        return packet_length;
+    }
+
+    return -1;
 }

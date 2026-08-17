@@ -46,4 +46,12 @@ typedef enum usb_descriptor_type_t {
     DESCRIPTOR_TYPE_CONFIGURATION = 0x02,
 } usb_descriptor_type_t;
 
+/**
+ * @brief EP0のSETUPパケットを処理する
+ *
+ * @param packet パケット
+ * @return int8_t 直後に送る次のEP0 IN packetの長さ
+ */
+static inline int8_t usb_ep0_handle_setup(const usb_setup_packet_t __xdata* packet);
+
 #endif /* HARDWARE_USB_PRIVATE_H */

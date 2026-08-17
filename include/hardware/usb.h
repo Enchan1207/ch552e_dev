@@ -45,8 +45,26 @@ typedef struct usb_device_descriptor_t {
     uint8_t iProduct;
     uint8_t iSerialNumber;
 
+    /** @note このライブラリは複数の Configuration Descriptor を想定しません。 */
     uint8_t bNumConfigurations;
 } usb_device_descriptor_t;
+
+/** コンフィギュレーションディスクリプタ */
+typedef struct usb_configuration_descriptor_t {
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+
+    uint16_t wTotalLength;
+
+    uint8_t bNumInterface;
+
+    uint8_t bConfigurationValue;
+
+    uint8_t iConfiguration;
+
+    uint8_t bmAttributes;
+    uint8_t bMaxPower;
+} usb_configuration_descriptor_t;
 
 /** USBモジュールの初期化 */
 void usb_init(void);
