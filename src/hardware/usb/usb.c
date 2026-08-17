@@ -1,6 +1,7 @@
 #include "hardware/usb.h"
 
 #include <ch552e/io.h>
+#include <ch552e/memory.h>
 #include <stdint.h>
 
 #include "hardware/usb_setup_fifo.h"
@@ -12,31 +13,6 @@ uint8_t ep0_buffer[64];
 static inline void usb_handle_bus_reset(void);
 static inline void usb_handle_transfer(uint8_t status, uint8_t length);
 static inline void usb_arm_ep0_for_setup(void);
-
-// TODO: 構造体にする
-static const __code uint8_t device_descriptor_mock[] = {
-    18,    // bLength
-    0x01,  // bDescriptorType = DEVICE
-
-    0x00, 0x02,  // bcdUSB = 2.00
-
-    0x00,  // bDeviceClass
-    0x00,  // bDeviceSubClass
-    0x00,  // bDeviceProtocol
-
-    64,  // bMaxPacketSize0
-
-    0x34, 0x12,  // idVendor  example
-    0x78, 0x56,  // idProduct example
-
-    0x00, 0x01,  // bcdDevice
-
-    0x00,  // iManufacturer
-    0x00,  // iProduct
-    0x00,  // iSerialNumber
-
-    0x01  // bNumConfigurations
-};
 
 // TODO　ステートマシンに起こす
 uint8_t device_address_candidate = 0x00;
@@ -156,12 +132,12 @@ static inline void usb_handle_transfer(uint8_t status, uint8_t length) {
             (packet->wValue & 0xFF) == 0x00) {
             latest_request_type = REQ_GET_DESCRIPTOR;
 
-            uint8_t descriptor_length = sizeof device_descriptor_mock;
+            uint8_t descriptor_length = device_descriptor->bLength;
             uint8_t packet_length = descriptor_length > packet->wLength ? packet->wLength : descriptor_length;
 
-            for (uint8_t i = 0; i < packet_length; i++) {
-                ep0_buffer[i] = device_descriptor_mock[i];
-            }
+            *(usb_device_descriptor_t*)ep0_buffer = *device_descriptor;
+
+            memcpy_code_to_xdata(ep0_buffer, device_descriptor, sizeof(usb_device_descriptor_t));
 
             UEP0_T_LEN = packet_length;
 

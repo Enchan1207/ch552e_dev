@@ -13,7 +13,27 @@ extern __xdata __at(USB_EP0_DMA_ADDRESS)
 /** xRAM上のEP0のバッファ */
 uint8_t ep0_buffer[64];
 
-// bmRequestType
+// MARK: - bDescriptorType
+
+/** デバイスディスクリプタ */
+extern const __code usb_device_descriptor_t* device_descriptor;
+
+/** デバイスディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_DEVICE 0x01
+
+/** コンフィギュレーションディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_CONFIGURATION 0x02
+
+/** ストリングディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_STRING 0x03
+
+/** インタフェースディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_INTERFACE 0x04
+
+/** エンドポイントディスクリプタ */
+#define USB_DESCRIPTOR_TYPE_ENDPOINT 0x05
+
+// MARK: - bmRequestType
 
 #define MASK_MREQ_DIRECTION 0b10000000
 #define MASK_MREQ_TYPE 0b01100000
@@ -31,7 +51,7 @@ uint8_t ep0_buffer[64];
 #define MREQ_TARGET_ENDPOINT 0b00000010
 #define MREQ_TARGET_OTHER 0b00000011
 
-// bRequest
+// MARK: - bRequest
 
 typedef enum usb_request_type_t {
     REQ_SET_ADDRESS = 0x05,
