@@ -1,11 +1,11 @@
-#include "hardware/usb.h"
+#include "hardware/usb/usb.h"
 
 #include <ch552e/io.h>
 #include <ch552e/memory.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "hardware/usb_setup_fifo.h"
+#include "hardware/usb/usb_setup_fifo.h"
 #include "usb_private.h"
 
 __xdata __at(USB_EP0_DMA_ADDRESS)

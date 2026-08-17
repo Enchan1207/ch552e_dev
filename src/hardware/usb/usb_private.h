@@ -4,7 +4,7 @@
 #include <ch552e/io.h>
 #include <stdint.h>
 
-#include "hardware/usb_setup_fifo.h"
+#include "hardware/usb/usb_setup_fifo.h"
 
 /** EP0のDMA転送先xRAMアドレス */
 #define USB_EP0_DMA_ADDRESS 0x0000

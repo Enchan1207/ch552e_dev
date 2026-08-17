@@ -5,8 +5,8 @@
 #include "bit_util.h"
 #include "func.h"
 #include "hardware/uart1.h"
-#include "hardware/usb.h"
-#include "hardware/usb_setup_fifo.h"
+#include "hardware/usb/usb.h"
+#include "hardware/usb/usb_setup_fifo.h"
 
 static const __code usb_device_descriptor_t device_descriptor = {
     .bLength = 18,
