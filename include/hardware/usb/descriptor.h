@@ -1,12 +1,9 @@
-#ifndef HARDWARE_USB_H
-#define HARDWARE_USB_H
+#ifndef HARDWARE_USB_DESCRIPTOR_H
+#define HARDWARE_USB_DESCRIPTOR_H
 
-#include <ch552e/interrupt.h>
 #include <stdint.h>
 
-ISR(INT_NO_USB);
-
-// MARK: - bDescriptorType
+// MARK: bDescriptorType
 
 /** デバイスディスクリプタ */
 #define USB_DESCRIPTOR_TYPE_DEVICE 0x01
@@ -22,6 +19,8 @@ ISR(INT_NO_USB);
 
 /** エンドポイントディスクリプタ */
 #define USB_DESCRIPTOR_TYPE_ENDPOINT 0x05
+
+// MARK: descriptor types
 
 /** デバイスディスクリプタ */
 typedef struct usb_device_descriptor_t {
@@ -66,15 +65,4 @@ typedef struct usb_configuration_descriptor_t {
     uint8_t bMaxPower;
 } usb_configuration_descriptor_t;
 
-/** USBモジュールの初期化 */
-void usb_init(void);
-
-/**
- * @brief デバイスディスクリプタ取得フック
- * @note この関数はユーザプログラムで実装する必要があります。
- *
- * @return const __code* デバイスディスクリプタへのポインタ
- */
-extern const __code usb_device_descriptor_t* usb_get_device_descriptor(void);
-
-#endif /* HARDWARE_USB_H */
+#endif /* HARDWARE_USB_DESCRIPTOR_H */
