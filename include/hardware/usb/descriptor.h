@@ -20,11 +20,45 @@
 /** エンドポイントディスクリプタ */
 #define USB_DESCRIPTOR_TYPE_ENDPOINT 0x05
 
+// MARK: bEndpointAddress
+
+/** エンドポイントディスクリプタ: アドレスmask */
+#define USB_ENDPOINT_ADDRESS_MASK 0b00001111
+
+/** エンドポイントディスクリプタ: 方向mask */
+#define USB_ENDPOINT_DIRECTION_MASK 0b10000000
+
+/** エンドポイントディスクリプタ: 入力 */
+#define USB_ENDPOINT_DIRECTION_IN 0b10000000
+
+/** エンドポイントディスクリプタ: 出力 */
+#define USB_ENDPOINT_DIRECTION_OUT 0b00000000
+
+// MARK: bmAttributes (endpoint descriptor)
+
+/** エンドポイントディスクリプタ: 属性mask */
+#define USB_ENDPOINT_DESCRIPTOR_ATTRIBUTE_MASK 0b00000011
+
+/** エンドポイントディスクリプタ: 属性 (コントロール転送) */
+#define USB_ENDPOINT_DESCRIPTOR_ATTRIBUTE_CONTROL 0b00000000
+
+/** エンドポイントディスクリプタ: 属性 (アイソクロナス転送) */
+#define USB_ENDPOINT_DESCRIPTOR_ATTRIBUTE_ISOCHRONOUS 0b00000001
+
+/** エンドポイントディスクリプタ: 属性 (バルク転送) */
+#define USB_ENDPOINT_DESCRIPTOR_ATTRIBUTE_BULK 0b00000010
+
+/** エンドポイントディスクリプタ: 属性 (インタラプト転送) */
+#define USB_ENDPOINT_DESCRIPTOR_ATTRIBUTE_INTERRUPT 0b00000011
+
 // MARK: descriptor types
 
 /** デバイスディスクリプタ */
 typedef struct usb_device_descriptor_t {
+    /** @note 0x12 固定 */
     uint8_t bLength;
+
+    /** @note 0x01 (`USB_DESCRIPTOR_TYPE_DEVICE`) 固定 */
     uint8_t bDescriptorType;
 
     uint16_t bcdUSB;
@@ -50,7 +84,10 @@ typedef struct usb_device_descriptor_t {
 
 /** コンフィギュレーションディスクリプタ */
 typedef struct usb_configuration_descriptor_t {
+    /** @note 0x09 固定 */
     uint8_t bLength;
+
+    /** @note 0x02 (`USB_DESCRIPTOR_TYPE_CONFIGURATION`) 固定 */
     uint8_t bDescriptorType;
 
     uint16_t wTotalLength;
@@ -64,5 +101,40 @@ typedef struct usb_configuration_descriptor_t {
     uint8_t bmAttributes;
     uint8_t bMaxPower;
 } usb_configuration_descriptor_t;
+
+/** インタフェースディスクリプタ */
+typedef struct usb_interface_descriptor_t {
+    /** @note 0x09 固定 */
+    uint8_t bLength;
+
+    /** @note 0x03 (`USB_DESCRIPTOR_TYPE_INTERFACE`) 固定 */
+    uint8_t bDescriptorType;
+
+    uint8_t bInterfaceNumber;
+    uint8_t bAlternateSetting;
+
+    uint8_t bNumEndpoints;
+
+    uint8_t bInterfaceClass;
+    uint8_t bInterfaceSubClass;
+    uint8_t bInterfaceProtocol;
+
+    uint8_t iInterface;
+} usb_interface_descriptor_t;
+
+/** エンドポイントディスクリプタ */
+typedef struct usb_endpoint_descriptor_t {
+    /** @note 0x07 固定 */
+    uint8_t bLength;
+
+    /** @note 0x05 (`USB_DESCRIPTOR_TYPE_INTERFACE`) 固定 */
+    uint8_t bDescriptorType;
+
+    uint8_t bEndpointAddress;
+
+    uint8_t bmAttributes;
+    uint16_t wMaxPacketSize;
+    uint8_t bInterval;
+} usb_endpoint_descriptor_t;
 
 #endif /* HARDWARE_USB_DESCRIPTOR_H */
