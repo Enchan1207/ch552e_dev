@@ -8,13 +8,21 @@
 
 // MARK: state
 
+typedef enum usb_ep0_state_t {
+    /** アイドル */
+    USB_EP0_STATE_IDLE,
+
+    /** デバイスアドレス確定待ち */
+    USB_EP0_STATE_ADDRESS_PENDING,
+} usb_ep0_state_t;
+
 /** USBコンテキスト */
 typedef struct usb_ctx_t {
-    /**
-     * @brief デバイスアドレス候補
-     * @note 0~127は有効アドレス、-1は候補がないことを示します。
-     */
-    int8_t device_address_candidate;
+    /** EP0の状態 */
+    usb_ep0_state_t ep0_state;
+
+    /** デバイスアドレス候補 */
+    uint8_t device_address_candidate;
 
     /**
      * @brief 最後に受け取ったSETUPパケットの `bRequest` 値

@@ -79,7 +79,7 @@ static int8_t usb_ep0_handle_setup(const usb_setup_packet_t __xdata* packet) {
         packet->wIndex == 0 &&
         packet->wLength == 0 &&
         packet->wValue <= 127) {
-        ctx.latest_request_type = REQ_SET_ADDRESS;
+        ctx.ep0_state = USB_EP0_STATE_ADDRESS_PENDING;
         ctx.device_address_candidate = packet->wValue;
 
         return 0x00;
@@ -111,11 +111,12 @@ static int8_t usb_ep0_handle_setup(const usb_setup_packet_t __xdata* packet) {
 
 static void usb_ep0_handle_in(void) {
     // デバイスアドレスの確定・保持
-    if (ctx.latest_request_type == REQ_SET_ADDRESS && ctx.device_address_candidate > 0) {
+    if (ctx.ep0_state == USB_EP0_STATE_ADDRESS_PENDING) {
         USB_DEV_AD = (USB_DEV_AD & ~MASK_USB_ADDR) | ctx.device_address_candidate;
 
-        ctx.device_address_candidate = -1;
-        ctx.latest_request_type = REQ_NONE;
+        ctx.ep0_state = USB_EP0_STATE_IDLE;
+        ctx.device_address_candidate = 0x00;
+
         UEP0_T_LEN = 0x00;
         UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
         return;

@@ -4,6 +4,7 @@
 #include "usb_private.h"
 
 usb_ctx_t ctx = {
+    .ep0_state = USB_EP0_STATE_IDLE,
     .device_address_candidate = -1,
     .latest_request_type = -1,
 };
@@ -44,6 +45,7 @@ void usb_init(void) {
 }
 
 void usb_reset_context(void) {
+    ctx.ep0_state = USB_EP0_STATE_IDLE;
     ctx.device_address_candidate = -1,
     ctx.latest_request_type = REQ_NONE;
 }
