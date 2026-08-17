@@ -8,7 +8,7 @@ target_compile_definitions(hardware PUBLIC
 
 target_sources(hardware PRIVATE
     uart1.c
-    usb/control.c
+    usb/init.c
     usb/isr.c
     usb/endpoint_0.c
 )
