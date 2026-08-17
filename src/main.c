@@ -38,7 +38,7 @@ static const __code usb_configuration_descriptor_t configuration_descriptor = {
     .bConfigurationValue = 0x01,
 
     .iConfiguration = 0x00,
-    .bmAttributes = 0x00,
+    .bmAttributes = 0x80,
     .bMaxPower = USB_MAX_POWER(100),
 };
 

@@ -112,7 +112,7 @@ typedef struct usb_interface_descriptor_t {
     /** @note 0x09 固定 */
     uint8_t bLength;
 
-    /** @note 0x03 (`USB_DESCRIPTOR_TYPE_INTERFACE`) 固定 */
+    /** @note 0x04 (`USB_DESCRIPTOR_TYPE_INTERFACE`) 固定 */
     uint8_t bDescriptorType;
 
     uint8_t bInterfaceNumber;
@@ -132,7 +132,7 @@ typedef struct usb_endpoint_descriptor_t {
     /** @note 0x07 固定 */
     uint8_t bLength;
 
-    /** @note 0x05 (`USB_DESCRIPTOR_TYPE_INTERFACE`) 固定 */
+    /** @note 0x05 (`USB_DESCRIPTOR_TYPE_ENDPOINT`) 固定 */
     uint8_t bDescriptorType;
 
     uint8_t bEndpointAddress;
