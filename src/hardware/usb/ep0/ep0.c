@@ -34,7 +34,13 @@ void usb_ep0_handle_packet(uint8_t token, uint8_t length) {
             usb_setup_packet_t __xdata* packet = (usb_setup_packet_t __xdata*)ep0_buffer;
             usb_setup_fifo_push_isr(packet);
 
-            usb_ep0_handle_setup(&ctx, packet);
+            bool result = usb_ep0_handle_setup(&ctx, packet);
+
+            if (!result) {
+                usb_ep0_stall();
+                break;
+            }
+
             break;
 
         case UIS_TOKEN_IN:

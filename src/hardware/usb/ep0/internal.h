@@ -2,6 +2,7 @@
 #define HARDWARE_USB_EP0_CONTEXT_H
 
 #include <ch552e/io.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 // MARK: - structs
@@ -64,7 +65,13 @@ inline void usb_ep0_stall(void) {
     P1_4 = 1;
 }
 
-/** SETUPパケットを処理する */
-void usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, const usb_setup_packet_t __xdata* packet);
+/**
+ * @brief SETUPパケットを処理する
+ *
+ * @param ctx
+ * @param packet
+ * @return bool 処理成否
+ */
+bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, const usb_setup_packet_t __xdata* packet);
 
 #endif /* HARDWARE_USB_EP0_CONTEXT_H */
