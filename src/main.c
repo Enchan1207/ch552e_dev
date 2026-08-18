@@ -31,8 +31,7 @@ static const __code usb_configuration_descriptor_t configuration_descriptor = {
     .bLength = 0x09,
     .bDescriptorType = USB_DESCRIPTOR_TYPE_CONFIGURATION,
 
-    // TODO ディスクリプタ長を計算・設定
-    .wTotalLength = 0x0000,
+    .wTotalLength = sizeof(usb_configuration_descriptor_t) + sizeof(usb_interface_descriptor_t),
 
     .bNumInterface = 0x01,
     .bConfigurationValue = 0x01,
@@ -42,12 +41,36 @@ static const __code usb_configuration_descriptor_t configuration_descriptor = {
     .bMaxPower = USB_MAX_POWER(100),
 };
 
+static const __code usb_interface_descriptor_t interface_descriptor = {
+    .bLength = 0x09,
+    .bDescriptorType = USB_DESCRIPTOR_TYPE_INTERFACE,
+
+    .bInterfaceNumber = 0x00,
+    .bAlternateSetting = 0x00,
+
+    .bNumEndpoints = 0x00,
+
+    .bInterfaceClass = USB_INTERFACE_CLASS_VENDOR_SPECIFIC,
+    .bInterfaceSubClass = 0x00,
+    .bInterfaceProtocol = 0x00,
+
+    .iInterface = 0,
+};
+
 const __code usb_device_descriptor_t* usb_get_device_descriptor(void) {
     return &device_descriptor;
 }
 
 const __code usb_configuration_descriptor_t* usb_get_configuration_descriptor(void) {
     return &configuration_descriptor;
+}
+
+const __code usb_interface_descriptor_t* usb_get_interface_descriptor(uint8_t index) {
+    if (index > 0) {
+        return NULL;
+    }
+
+    return &interface_descriptor;
 }
 
 int main(void) {

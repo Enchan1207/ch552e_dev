@@ -39,6 +39,26 @@
 /** bMaxPower値の設定ヘルパ (単位: mA) */
 #define USB_MAX_POWER(ma) ((ma) >> 1)
 
+// MARK: bInterfaceClass (interface descriptor)
+
+/** USBインタフェースクラス: USBオーディオ */
+#define USB_INTERFACE_CLASS_AUDIO 0x01
+
+/** USBインタフェースクラス: CDC (Communication Device Class) */
+#define USB_INTERFACE_CLASS_CDC 0x02
+
+/** USBインタフェースクラス: HID */
+#define USB_INTERFACE_CLASS_HID 0x03
+
+/** USBインタフェースクラス: CDCデータ */
+#define USB_INTERFACE_CLASS_CDC_DATA 0x0A
+
+/** USBインタフェースクラス: アプリケーション固有 */
+#define USB_INTERFACE_CLASS_APPLICATION_SPECIFIC 0xFE
+
+/** USBインタフェースクラス: ベンダ固有 */
+#define USB_INTERFACE_CLASS_VENDOR_SPECIFIC 0xFF
+
 // MARK: bmAttributes (endpoint descriptor)
 
 /** エンドポイントディスクリプタ: 属性mask */
