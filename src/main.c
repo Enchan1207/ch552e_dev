@@ -32,7 +32,7 @@ static const __code usb_configuration_descriptor_t configuration_descriptor = {
     .bLength = 0x09,
     .bDescriptorType = USB_DESCRIPTOR_TYPE_CONFIGURATION,
 
-    .wTotalLength = sizeof(usb_configuration_descriptor_t) + sizeof(usb_interface_descriptor_t),
+    .wTotalLength = 0x09 + 0x09,
 
     .bNumInterface = 0x01,
     .bConfigurationValue = 0x01,
