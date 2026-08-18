@@ -1,5 +1,5 @@
-#ifndef HARDWARE_UART1_PRIVATE_H
-#define HARDWARE_UART1_PRIVATE_H
+#ifndef HARDWARE_UART1_CONTEXT_H
+#define HARDWARE_UART1_CONTEXT_H
 
 #include <ch552e/io.h>
 #include <hardware/uart1.h>
@@ -18,4 +18,4 @@ typedef struct {
 
 extern uart1_ctx_t uart1;
 
-#endif /* HARDWARE_UART1_PRIVATE_H */
+#endif /* HARDWARE_UART1_CONTEXT_H */

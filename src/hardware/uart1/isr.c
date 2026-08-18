@@ -1,7 +1,7 @@
 #include <ch552e/io.h>
 #include <hardware/uart1.h>
 
-#include "uart1_private.h"
+#include "context.h"
 
 // UART1割込み
 ISR(INT_NO_UART1) {
