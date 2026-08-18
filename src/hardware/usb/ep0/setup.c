@@ -59,12 +59,13 @@ bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet) {
 
         usb_configuration_descriptor_ptr config = usb_get_configuration_descriptor();
 
-        ctx->configuration_send_stream.remaining = packet->wLength;
-        ctx->configuration_send_stream.descriptor = config;
-        ctx->configuration_send_stream.descriptor_size = config->bLength;
-        ctx->configuration_send_stream.offset = 0;
-        ctx->configuration_send_stream.if_index = 0;
-        ctx->configuration_send_stream.index = 0;
+        ctx->configuration_stream.phase = USB_CONFIGURATION_STREAM_PHASE_CONFIGURATION;
+        ctx->configuration_stream.remaining = config->wTotalLength;
+        ctx->configuration_stream.descriptor = config;
+        ctx->configuration_stream.descriptor_size = config->bLength;
+        ctx->configuration_stream.offset = 0;
+        ctx->configuration_stream.if_index = 0;
+        ctx->configuration_stream.index = 0;
 
         uint8_t filled_length = usb_ep0_prepare_descriptor(ctx);
         size_t tx_length = filled_length > packet->wLength ? packet->wLength : filled_length;

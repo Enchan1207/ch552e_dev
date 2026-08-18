@@ -21,7 +21,7 @@ void usb_ep0_handle_in(usb_ep0_ctx_t* ctx) {
             uint8_t length = usb_ep0_prepare_descriptor(ctx);
 
             // 送信完了
-            if (ctx->configuration_send_stream.remaining == 0) {
+            if (ctx->configuration_stream.remaining == 0) {
                 ctx->state = USB_STATE_WAIT_STATUS_OUT;
 
                 UEP0_T_LEN = 0x00;
