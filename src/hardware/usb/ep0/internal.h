@@ -37,10 +37,16 @@ typedef struct {
 
 } usb_ep0_ctx_t;
 
-// MARK: - globals
+/** SETUPパケット */
+typedef struct {
+    uint8_t bmRequestType;
+    uint8_t bRequest;
+    uint16_t wValue;
+    uint16_t wIndex;
+    uint16_t wLength;
+} usb_setup_packet_t;
 
-/** EP0コンテキストポインタ */
-extern usb_ep0_ctx_t* usb_ep0_ctx;
+// MARK: - globals
 
 /** EP0のDMA転送先xRAMアドレス */
 #define USB_EP0_DMA_ADDRESS 0x0000
@@ -51,22 +57,14 @@ uint8_t ep0_buffer[64];
 
 // MARK: - functions
 
-/**
- * @brief EP0を初期化
- */
-void usb_ep0_init(void);
+/** EP0をSTALL状態にする */
+inline void usb_ep0_stall(void) {
+    UEP0_T_LEN = 0x00;
+    UEP0_CTRL = UEP_R_RES_STALL | UEP_T_RES_STALL;
+    P1_4 = 1;
+}
 
-/**
- * @brief EP0バス状態をリセット
- */
-void usb_ep0_reset(void);
-
-/**
- * @brief EP0のパケットを処理する
- *
- * @param token パケットのトークン
- * @param length パケットの長さ
- */
-void usb_ep0_handle_packet(uint8_t token, uint8_t length);
+/** SETUPパケットを処理する */
+void usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, const usb_setup_packet_t __xdata* packet);
 
 #endif /* HARDWARE_USB_EP0_CONTEXT_H */

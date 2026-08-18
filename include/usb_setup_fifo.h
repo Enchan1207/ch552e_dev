@@ -21,10 +21,10 @@ typedef struct {
     uint16_t wValue;
     uint16_t wIndex;
     uint16_t wLength;
-} usb_setup_packet_t;
+} usb_setup_fifo_item_t;
 
 void usb_setup_fifo_init(void);
-bool usb_setup_fifo_push_isr(const usb_setup_packet_t __xdata* packet);
-bool usb_setup_fifo_pop(usb_setup_packet_t* packet);
+bool usb_setup_fifo_push_isr(const usb_setup_fifo_item_t __xdata* packet);
+bool usb_setup_fifo_pop(usb_setup_fifo_item_t* packet);
 
 #endif /* HARDWARE_USB_SETUP_FIFO_H */

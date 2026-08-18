@@ -7,5 +7,5 @@ target_sources(usb PRIVATE
     isr.c
 
     ep0/ep0.c
-    ep0/handler.c
+    ep0/setup.c
 )

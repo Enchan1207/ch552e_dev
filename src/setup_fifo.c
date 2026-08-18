@@ -3,7 +3,7 @@
 typedef struct {
     volatile uint8_t head;
     volatile uint8_t tail;
-    usb_setup_packet_t entries[USB_SETUP_FIFO_SIZE];
+    usb_setup_fifo_item_t entries[USB_SETUP_FIFO_SIZE];
 } usb_setup_fifo_t;
 
 static __xdata __at(USB_SETUP_FIFO_ADDRESS)
@@ -14,7 +14,7 @@ void usb_setup_fifo_init(void) {
     fifo.tail = 0;
 }
 
-bool usb_setup_fifo_push_isr(const usb_setup_packet_t __xdata* packet) {
+bool usb_setup_fifo_push_isr(const usb_setup_fifo_item_t __xdata* packet) {
     uint8_t head = fifo.head;
     uint8_t next_head = (head + 1) & (USB_SETUP_FIFO_SIZE - 1);
 
@@ -27,7 +27,7 @@ bool usb_setup_fifo_push_isr(const usb_setup_packet_t __xdata* packet) {
     return true;
 }
 
-bool usb_setup_fifo_pop(usb_setup_packet_t* packet) {
+bool usb_setup_fifo_pop(usb_setup_fifo_item_t* packet) {
     uint8_t tail = fifo.tail;
 
     if (tail == fifo.head) {

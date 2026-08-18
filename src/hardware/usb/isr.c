@@ -2,7 +2,7 @@
 #include <ch552e/io.h>
 #include <stdint.h>
 
-#include "ep0/internal.h"
+#include "ep0/ep0.h"
 
 ISR(INT_NO_USB) {
     if (UIF_TRANSFER) {

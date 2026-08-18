@@ -4,7 +4,7 @@
 #include <ch552e/memory.h>
 #include <stddef.h>
 
-#include "ep0/internal.h"
+#include "ep0/ep0.h"
 
 void usb_init(void) {
     irq_disable();
