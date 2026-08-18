@@ -34,6 +34,14 @@ void usb_ep0_handle_in(usb_ep0_ctx_ptr ctx) {
             UEP0_CTRL = next_t_toggle | bUEP_R_TOG | UEP_R_RES_NAK | UEP_T_RES_ACK;
             return;
 
+        case USB_STATE_WAIT_SET_CONFIGURATION:
+            ctx->state = USB_STATE_IDLE;
+            ctx->configuration = ctx->configuration_pending.configuration_candidate;
+
+            UEP0_T_LEN = 0;
+            UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
+            return;
+
         default:
             break;
     }

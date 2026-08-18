@@ -29,6 +29,14 @@ static inline bool is_set_address(usb_setup_packet_ptr packet) {
            packet->wValue <= 127;
 }
 
+static inline bool is_set_configuration(usb_setup_packet_ptr packet) {
+    return packet->bmRequestType == (MREQ_DIRECTION_H2D | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
+           packet->bRequest == REQ_SET_CONFIGURATION &&
+           packet->wIndex == 0 &&
+           packet->wLength == 0 &&
+           (packet->wValue == 0 || packet->wValue == 1);
+}
+
 bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet) {
     if (is_set_address(packet)) {
         ctx->state = USB_STATE_WAIT_DEVICE_ADDRESS;
@@ -71,6 +79,15 @@ bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet) {
         size_t tx_length = filled_length > packet->wLength ? packet->wLength : filled_length;
 
         UEP0_T_LEN = tx_length;
+        UEP0_CTRL = bUEP_T_TOG | bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;
+        return true;
+    }
+
+    if (is_set_configuration(packet)) {
+        ctx->state = USB_STATE_WAIT_SET_CONFIGURATION;
+        ctx->configuration_pending.configuration_candidate = (uint8_t)(packet->wValue & 0xFF);
+
+        UEP0_T_LEN = 0;
         UEP0_CTRL = bUEP_T_TOG | bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;
         return true;
     }

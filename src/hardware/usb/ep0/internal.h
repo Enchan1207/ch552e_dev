@@ -15,6 +15,9 @@ typedef enum {
     /** デバイスアドレス確定待ち */
     USB_STATE_WAIT_DEVICE_ADDRESS,
 
+    /** コンフィギュレーション設定確認待ち */
+    USB_STATE_WAIT_SET_CONFIGURATION,
+
     /** デバイスディスクリプタ送信中 */
     USB_STATE_SEND_DEVICE_DESCRIPTOR,
 
@@ -52,6 +55,11 @@ typedef struct {
         } address_pending;
 
         struct {
+            /** コンフィギュレーション候補 */
+            uint8_t configuration_candidate;
+        } configuration_pending;
+
+        struct {
             /** 現在のストリームフェーズ */
             configuration_stream_phase_t phase;
 
@@ -74,6 +82,9 @@ typedef struct {
             uint8_t index;
         } configuration_stream;
     };
+
+    /** 現在選択されているコンフィギュレーション */
+    uint8_t configuration;
 
 } usb_ep0_ctx_t;
 
