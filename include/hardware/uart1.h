@@ -39,6 +39,11 @@ void uart_write(const uint8_t* const data, size_t len);
 /// @note 現在実行中の送信がある場合は、完了するまでブロックします。
 void uart_write_noblock(const uint8_t* const data, size_t len);
 
+/// @brief UART送信 (単一バイト)
+/// @param data
+/// @note 与えられたデータの送信が完了するまでブロックします。
+void uart_write_byte(char data);
+
 /// @brief USART送信 (文字列)
 /// @param str
 /// @note 与えられたデータの送信が完了するまでブロックします。

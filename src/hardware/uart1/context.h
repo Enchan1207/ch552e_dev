@@ -21,6 +21,6 @@ extern __xdata __at(UART1_BUFFER_ADDRESS)
 /** xRAM上のUART1のバッファ */
 uint8_t rx_buffer[UART1_RX_BUFSIZE];
 
-extern uart1_ctx_t uart1;
+extern __idata uart1_ctx_t uart1;
 
 #endif /* HARDWARE_UART1_CONTEXT_H */

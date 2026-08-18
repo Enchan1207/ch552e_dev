@@ -13,7 +13,7 @@
                (((uint32_t)(F_SYS) + (8UL * (uint32_t)(baud))) / \
                 (16UL * (uint32_t)(baud)))))
 
-uart1_ctx_t uart1 = {
+__idata uart1_ctx_t uart1 = {
     .tx_busy = false,
     .tx_data_ptr = NULL,
     .tx_remaining = 0,
@@ -86,6 +86,15 @@ void uart_write_noblock(const uint8_t* const data, size_t len) {
     // 最初の1byteを書いておく
     SBUF1 = *uart1.tx_data_ptr;
     uart1.tx_data_ptr++;
+}
+
+void uart_write_byte(char data) {
+    while (uart1.tx_busy);
+    uart1.tx_busy = true;
+    uart1.tx_remaining = 0;
+    SBUF1 = data;
+
+    while (uart1.tx_busy);
 }
 
 void uart_print(const char* const str) {
