@@ -43,8 +43,11 @@ typedef struct {
             /** 現在送信中のディスクリプタのポインタ */
             const uint8_t __code* descriptor;
 
+            /** 現在送信中のディスクリプタの長さ */
+            uint8_t descriptor_size;
+
             /** 要求されているデータの全体長 */
-            uint16_t total_length;
+            uint16_t remaining;
 
             /** 現在送信中のディスクリプタをどこまで送信したか */
             uint8_t offset;
@@ -74,11 +77,14 @@ typedef const usb_setup_packet_t __idata* usb_setup_packet_ptr_t;
 // MARK: - globals
 
 /** EP0のDMA転送先xRAMアドレス */
-#define USB_EP0_DMA_ADDRESS 0x0000
+#define USB_EP0_BUFFER_ADDRESS 0x0000
 
-extern __xdata __at(USB_EP0_DMA_ADDRESS)
+/** EP0のDMAバッファ長 */
+#define USB_EP0_BUFFER_SIZE 64
+
+extern __xdata __at(USB_EP0_BUFFER_ADDRESS)
 /** xRAM上のEP0のバッファ */
-uint8_t ep0_buffer[64];
+uint8_t ep0_buffer[USB_EP0_BUFFER_SIZE];
 
 // MARK: - functions
 

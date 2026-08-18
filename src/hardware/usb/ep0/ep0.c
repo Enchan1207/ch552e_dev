@@ -9,11 +9,11 @@ static usb_ep0_ctx_t ctx = {
     .state = USB_STATE_INIT,
 };
 
-__xdata __at(USB_EP0_DMA_ADDRESS)
+__xdata __at(USB_EP0_BUFFER_ADDRESS)
 uint8_t ep0_buffer[64];
 
 void usb_ep0_init(void) {
-    UEP0_DMA = USB_EP0_DMA_ADDRESS;
+    UEP0_DMA = USB_EP0_BUFFER_ADDRESS;
     usb_ep0_reset();
 }
 
