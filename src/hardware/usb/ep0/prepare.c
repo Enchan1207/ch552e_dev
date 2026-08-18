@@ -5,7 +5,7 @@
 
 #include "internal.h"
 
-static bool retrieve_interface_descriptor(usb_ep0_ctx_t* ctx) {
+static bool retrieve_interface_descriptor(usb_ep0_ctx_ptr ctx) {
     usb_interface_descriptor_ptr interface_descriptor = usb_get_interface_descriptor(ctx->configuration_stream.if_index);
     if (interface_descriptor == NULL) {
         return false;
@@ -19,7 +19,7 @@ static bool retrieve_interface_descriptor(usb_ep0_ctx_t* ctx) {
     return true;
 }
 
-static bool move_to_next_interface_child_descriptor(usb_ep0_ctx_t* ctx) {
+static bool move_to_next_interface_child_descriptor(usb_ep0_ctx_ptr ctx) {
     uint8_t size = 0;
     const __code uint8_t* child_descriptor = usb_get_interface_child_descriptor(
         ctx->configuration_stream.if_index,
@@ -45,7 +45,7 @@ static bool move_to_next_interface_child_descriptor(usb_ep0_ctx_t* ctx) {
  * @param ctx
  * @return bool ディスクリプタ列挙ループを続行可能かどうか
  */
-static inline bool move_to_next_descriptor(usb_ep0_ctx_t* ctx) {
+static inline bool move_to_next_descriptor(usb_ep0_ctx_ptr ctx) {
     // オフセットがディスクリプタサイズに達していない = まだ送りきっていない, 現状維持
     if (ctx->configuration_stream.offset <
         ctx->configuration_stream.descriptor_size) {
@@ -87,7 +87,7 @@ static inline uint8_t min(uint8_t lhs, uint8_t rhs) {
     return lhs > rhs ? rhs : lhs;
 }
 
-uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_t* ctx) {
+uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
     if (ctx->state != USB_STATE_SEND_CONFIGURATION_DESCRIPTOR) {
         return 0;
     }

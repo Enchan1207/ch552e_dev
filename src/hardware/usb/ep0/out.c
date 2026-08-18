@@ -1,6 +1,6 @@
 #include "internal.h"
 
-void usb_ep0_handle_out(usb_ep0_ctx_t* ctx, uint8_t length) {
+void usb_ep0_handle_out(usb_ep0_ctx_ptr ctx, uint8_t length) {
     switch (ctx->state) {
         case USB_STATE_WAIT_STATUS_OUT:
             if (length != 0) {

@@ -5,7 +5,7 @@
 #include "internal.h"
 #include "usb_setup_fifo.h"
 
-static usb_ep0_ctx_t ctx = {
+static __idata usb_ep0_ctx_t ctx = {
     .state = USB_STATE_INIT,
 };
 

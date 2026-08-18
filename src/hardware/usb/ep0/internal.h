@@ -77,6 +77,9 @@ typedef struct {
 
 } usb_ep0_ctx_t;
 
+/** USB EP0コンテキストのポインタ */
+typedef __idata usb_ep0_ctx_t* usb_ep0_ctx_ptr;
+
 /** SETUPパケット */
 typedef struct {
     uint8_t bmRequestType;
@@ -87,7 +90,7 @@ typedef struct {
 } usb_setup_packet_t;
 
 /** SETUPパケットのポインタ */
-typedef const usb_setup_packet_t __idata* usb_setup_packet_ptr_t;
+typedef const usb_setup_packet_t __idata* usb_setup_packet_ptr;
 
 // MARK: - globals
 
@@ -117,14 +120,14 @@ inline void usb_ep0_stall(void) {
  * @param packet
  * @return bool 処理成否
  */
-bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet);
+bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet);
 
 /**
  * @brief INを処理する
  *
  * @param ctx
  */
-void usb_ep0_handle_in(usb_ep0_ctx_t* ctx);
+void usb_ep0_handle_in(usb_ep0_ctx_ptr ctx);
 
 /**
  * @brief OUTを処理する
@@ -132,7 +135,7 @@ void usb_ep0_handle_in(usb_ep0_ctx_t* ctx);
  * @param ctx
  * @param length
  */
-void usb_ep0_handle_out(usb_ep0_ctx_t* ctx, uint8_t length);
+void usb_ep0_handle_out(usb_ep0_ctx_ptr ctx, uint8_t length);
 
 /**
  * @brief ディスクリプタ返答用のデータを準備する
@@ -141,6 +144,6 @@ void usb_ep0_handle_out(usb_ep0_ctx_t* ctx, uint8_t length);
  * @param ctx
  * @return 実際に詰めたデータの長さ
  */
-uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_t* ctx);
+uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx);
 
 #endif /* HARDWARE_USB_EP0_CONTEXT_H */

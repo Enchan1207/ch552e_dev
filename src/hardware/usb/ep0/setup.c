@@ -6,22 +6,22 @@
 #include "../request.h"
 #include "internal.h"
 
-static inline bool is_get_descriptor(usb_setup_packet_ptr_t packet) {
+static inline bool is_get_descriptor(usb_setup_packet_ptr packet) {
     return packet->bmRequestType == (MREQ_DIRECTION_D2H | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
            packet->bRequest == REQ_GET_DESCRIPTOR &&
            packet->wIndex == 0 &&
            (packet->wValue & 0xFF) == 0x00;
 }
 
-static inline bool is_get_device_descriptor(usb_setup_packet_ptr_t packet) {
+static inline bool is_get_device_descriptor(usb_setup_packet_ptr packet) {
     return is_get_descriptor(packet) && ((packet->wValue >> 8) == USB_DESCRIPTOR_TYPE_DEVICE);
 }
 
-static inline bool is_get_configuration_descriptor(usb_setup_packet_ptr_t packet) {
+static inline bool is_get_configuration_descriptor(usb_setup_packet_ptr packet) {
     return is_get_descriptor(packet) && ((packet->wValue >> 8) == USB_DESCRIPTOR_TYPE_CONFIGURATION);
 }
 
-static inline bool is_set_address(usb_setup_packet_ptr_t packet) {
+static inline bool is_set_address(usb_setup_packet_ptr packet) {
     return packet->bmRequestType == (MREQ_DIRECTION_H2D | MREQ_TYPE_STANDARD | MREQ_TARGET_DEVICE) &&
            packet->bRequest == REQ_SET_ADDRESS &&
            packet->wIndex == 0 &&
@@ -29,7 +29,7 @@ static inline bool is_set_address(usb_setup_packet_ptr_t packet) {
            packet->wValue <= 127;
 }
 
-bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet) {
+bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet) {
     if (is_set_address(packet)) {
         ctx->state = USB_STATE_WAIT_DEVICE_ADDRESS;
         ctx->address_pending.address_candidate = packet->wValue;
