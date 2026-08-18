@@ -42,10 +42,11 @@ bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet) {
     if (is_get_device_descriptor(packet)) {
         ctx->state = USB_STATE_SEND_DEVICE_DESCRIPTOR;
 
-        size_t descriptor_size = sizeof(usb_device_descriptor_t);
+        usb_device_descriptor_ptr descriptor = usb_get_device_descriptor();
+
+        uint8_t descriptor_size = descriptor->bLength;
         size_t tx_length = descriptor_size > packet->wLength ? packet->wLength : descriptor_size;
 
-        const __code usb_device_descriptor_t* descriptor = usb_get_device_descriptor();
         memcpy_code_to_xdata(ep0_buffer, descriptor, descriptor_size);
 
         UEP0_T_LEN = tx_length;
@@ -56,14 +57,19 @@ bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet) {
     if (is_get_configuration_descriptor(packet)) {
         ctx->state = USB_STATE_SEND_CONFIGURATION_DESCRIPTOR;
 
-        ctx->configuration_send_stream.descriptor = NULL;
-        ctx->configuration_send_stream.offset = 0x00;
-        ctx->configuration_send_stream.if_index = 0x00;
-        ctx->configuration_send_stream.index = 0x00;
-        ctx->configuration_send_stream.total_length = packet->wLength;
+        usb_configuration_descriptor_ptr config = usb_get_configuration_descriptor();
 
-        uint8_t length = usb_ep0_prepare_descriptor(ctx);
-        UEP0_T_LEN = length;
+        ctx->configuration_send_stream.remaining = packet->wLength;
+        ctx->configuration_send_stream.descriptor = config;
+        ctx->configuration_send_stream.descriptor_size = config->bLength;
+        ctx->configuration_send_stream.offset = 0;
+        ctx->configuration_send_stream.if_index = 0;
+        ctx->configuration_send_stream.index = 0;
+
+        uint8_t filled_length = usb_ep0_prepare_descriptor(ctx);
+        size_t tx_length = filled_length > packet->wLength ? packet->wLength : filled_length;
+
+        UEP0_T_LEN = tx_length;
         UEP0_CTRL = bUEP_T_TOG | bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;
         return true;
     }
