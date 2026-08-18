@@ -54,17 +54,15 @@ bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet) {
     }
 
     if (is_get_configuration_descriptor(packet)) {
-        // 初めて遷移するなら状態を初期化する
-        if (ctx->state != USB_STATE_SEND_CONFIGURATION_DESCRIPTOR) {
-            ctx->configuration_send_stream.descriptor = NULL;
-            ctx->configuration_send_stream.offset = 0x00;
-
-            ctx->configuration_send_stream.if_index = 0x00;
-            ctx->configuration_send_stream.index = 0x00;
-        }
         ctx->state = USB_STATE_SEND_CONFIGURATION_DESCRIPTOR;
 
-        uint8_t length = usb_ep0_prepare_descriptor(ctx, packet->wLength);
+        ctx->configuration_send_stream.descriptor = NULL;
+        ctx->configuration_send_stream.offset = 0x00;
+        ctx->configuration_send_stream.if_index = 0x00;
+        ctx->configuration_send_stream.index = 0x00;
+        ctx->configuration_send_stream.total_length = packet->wLength;
+
+        uint8_t length = usb_ep0_prepare_descriptor(ctx);
         UEP0_T_LEN = length;
         UEP0_CTRL = bUEP_T_TOG | bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;
         return true;

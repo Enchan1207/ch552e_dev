@@ -43,6 +43,9 @@ typedef struct {
             /** 現在送信中のディスクリプタのポインタ */
             const uint8_t __code* descriptor;
 
+            /** 要求されているデータの全体長 */
+            uint16_t total_length;
+
             /** 現在送信中のディスクリプタをどこまで送信したか */
             uint8_t offset;
 
@@ -115,9 +118,8 @@ void usb_ep0_handle_out(usb_ep0_ctx_t* ctx, uint8_t length);
  * @note コンフィギュレーションディスクリプタ送信要求に対する応答に利用することを想定しています。
  *
  * @param ctx
- * @param length
  * @return 実際に詰めたデータの長さ
  */
-uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_t* ctx, uint8_t length);
+uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_t* ctx);
 
 #endif /* HARDWARE_USB_EP0_CONTEXT_H */
