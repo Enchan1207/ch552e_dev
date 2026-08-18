@@ -4,10 +4,8 @@ add_library(usb)
 
 target_sources(usb PRIVATE
     usb.c
-    endpoint_0/handler.c
-    endpoint_0/buffer.c
-    endpoint_0/in.c
-    endpoint_0/out.c
-    endpoint_0/setup.c
-    endpoint_0/transfer.c
+    isr.c
+
+    ep0/ep0.c
+    ep0/handler.c
 )
