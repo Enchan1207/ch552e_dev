@@ -40,7 +40,7 @@ bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet) {
     }
 
     if (is_get_device_descriptor(packet)) {
-        ctx->state = USB_STATE_GET_DEVICE_DESCRIPTOR;
+        ctx->state = USB_STATE_SEND_DEVICE_DESCRIPTOR;
 
         size_t descriptor_size = sizeof(usb_device_descriptor_t);
         size_t tx_length = descriptor_size > packet->wLength ? packet->wLength : descriptor_size;

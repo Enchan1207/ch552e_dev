@@ -16,10 +16,10 @@ typedef enum {
     USB_STATE_WAIT_DEVICE_ADDRESS,
 
     /** デバイスディスクリプタ送信中 */
-    USB_STATE_GET_DEVICE_DESCRIPTOR,
+    USB_STATE_SEND_DEVICE_DESCRIPTOR,
 
     /** コンフィギュレーションディスクリプタ送信中 */
-    USB_STATE_GET_CONFIGURATION_DESCRIPTOR,
+    USB_STATE_SEND_CONFIGURATION_DESCRIPTOR,
 
     /** StatusステージでOUTを待機中 */
     USB_STATE_WAIT_STATUS_OUT,
@@ -35,8 +35,20 @@ typedef struct {
 
     union {
         struct {
+            /** デバイスアドレス候補 */
             uint8_t address_candidate;
         } address_pending;
+
+        struct {
+            /** 現在送信中のディスクリプタのポインタ */
+            uint8_t __code* descriptor;
+
+            /** インタフェースディスクリプタ以下のインデックス */
+            uint8_t index;
+
+            /** 現在送信中のディスクリプタをどこまで送信したか */
+            uint8_t offset;
+        } configuration_send_stream;
     };
 
 } usb_ep0_ctx_t;
