@@ -23,7 +23,6 @@ ISR(INT_NO_USB) {
 
     if (UIF_BUS_RST) {
         usb_ep0_reset();
-
         UIF_BUS_RST = 0;
     }
 

@@ -1,5 +1,7 @@
 #include "ep0.h"
 
+#include <stddef.h>
+
 #include "internal.h"
 #include "usb_setup_fifo.h"
 
@@ -23,6 +25,17 @@ void usb_ep0_reset(void) {
     USB_DEV_AD = 0x00;
 }
 
+static void copy_setup_packet(usb_setup_packet_t* _dest, const __xdata void* _src) {
+    uint8_t* dest = _dest;
+    const __xdata uint8_t* src = _src;
+
+    for (size_t i = 0; i < sizeof(usb_setup_packet_t); i++) {
+        *dest = *src;
+        dest++;
+        src++;
+    }
+}
+
 void usb_ep0_handle_packet(uint8_t token, uint8_t length) {
     switch (token) {
         case UIS_TOKEN_SETUP:
@@ -31,10 +44,12 @@ void usb_ep0_handle_packet(uint8_t token, uint8_t length) {
                 break;
             }
 
-            usb_setup_packet_t __xdata* packet = (usb_setup_packet_t __xdata*)ep0_buffer;
-            usb_setup_fifo_push_isr(packet);
+            usb_setup_packet_t __idata packet;
+            copy_setup_packet(&packet, ep0_buffer);
 
-            bool result = usb_ep0_handle_setup(&ctx, packet);
+            usb_setup_fifo_push_isr(&packet);
+
+            bool result = usb_ep0_handle_setup(&ctx, &packet);
 
             if (!result) {
                 usb_ep0_stall();

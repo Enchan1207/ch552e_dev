@@ -50,6 +50,9 @@ typedef struct {
     uint16_t wLength;
 } usb_setup_packet_t;
 
+/** SETUPパケットのポインタ */
+typedef const usb_setup_packet_t __idata* usb_setup_packet_ptr_t;
+
 // MARK: - globals
 
 /** EP0のDMA転送先xRAMアドレス */
@@ -75,7 +78,7 @@ inline void usb_ep0_stall(void) {
  * @param packet
  * @return bool 処理成否
  */
-bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, const usb_setup_packet_t __xdata* packet);
+bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, usb_setup_packet_ptr_t packet);
 
 /**
  * @brief INを処理する

@@ -14,7 +14,7 @@ void usb_setup_fifo_init(void) {
     fifo.tail = 0;
 }
 
-bool usb_setup_fifo_push_isr(const usb_setup_fifo_item_t __xdata* packet) {
+bool usb_setup_fifo_push_isr(const usb_setup_fifo_item_t __idata* packet) {
     uint8_t head = fifo.head;
     uint8_t next_head = (head + 1) & (USB_SETUP_FIFO_SIZE - 1);
 

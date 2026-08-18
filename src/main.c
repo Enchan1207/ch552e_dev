@@ -51,7 +51,7 @@ const __code usb_configuration_descriptor_t* usb_get_configuration_descriptor(vo
 }
 
 int main(void) {
-    usb_setup_packet_t setup_packet;
+    usb_setup_fifo_item_t setup_packet;
 
     // クロック設定 (内蔵オシレータ, 6MHz)
     SAFE_MOD = 0x55;
