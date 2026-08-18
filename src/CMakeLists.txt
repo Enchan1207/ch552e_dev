@@ -7,7 +7,6 @@ add_executable(ch552e_dev)
 
 target_sources(ch552e_dev PRIVATE
     main.c
-    func.c
     setup_fifo.c
 )
 

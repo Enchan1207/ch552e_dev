@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "bit_util.h"
-#include "func.h"
 #include "hardware/uart1.h"
 #include "hardware/usb/usb.h"
 

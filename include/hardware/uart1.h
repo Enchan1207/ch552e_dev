@@ -54,6 +54,11 @@ void uart_print(const char* const str);
 /// @note 現在実行中の送信がある場合は、完了するまでブロックします。
 void uart_print_noblock(const char* const str);
 
+/// @brief 単一byteを16進数形式で表示
+/// @param value
+/// @note 与えられたデータの送信が完了するまでブロックします。
+void uart_print_hex(uint8_t value);
+
 /// @brief USART受信
 /// @return 受信結果
 /// @note データを受信するまでブロックします。

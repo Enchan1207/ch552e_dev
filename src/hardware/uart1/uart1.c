@@ -112,6 +112,13 @@ void uart_print_noblock(const char* const str) {
     uart_write_noblock((const uint8_t*)str, len);
 }
 
+static const __code char hex_literal[] = "0123456789ABCDEF";
+
+void uart_print_hex(uint8_t value) {
+    uart_write_byte(hex_literal[value >> 4]);
+    uart_write_byte(hex_literal[value & 0b1111]);
+}
+
 uint8_t uart_read(void) {
     while (uart1.rx_head == uart1.rx_tail);
 
