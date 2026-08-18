@@ -1,5 +1,6 @@
 #include <ch552e/interrupt.h>
 #include <ch552e/io.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "bit_util.h"
@@ -57,20 +58,29 @@ static const __code usb_interface_descriptor_t interface_descriptor = {
     .iInterface = 0,
 };
 
-const __code usb_device_descriptor_t* usb_get_device_descriptor(void) {
+usb_device_descriptor_ptr usb_get_device_descriptor(void) {
     return &device_descriptor;
 }
 
-const __code usb_configuration_descriptor_t* usb_get_configuration_descriptor(void) {
+usb_configuration_descriptor_ptr usb_get_configuration_descriptor(void) {
     return &configuration_descriptor;
 }
 
-const __code usb_interface_descriptor_t* usb_get_interface_descriptor(uint8_t index) {
+usb_interface_descriptor_ptr usb_get_interface_descriptor(uint8_t index) {
     if (index > 0) {
         return NULL;
     }
 
     return &interface_descriptor;
+}
+
+const __code uint8_t* usb_get_interface_child_descriptor(uint8_t if_index, uint8_t index, uint8_t* length) {
+    // NOTE: 従属ディスクリプタなし
+    (void)if_index;
+    (void)index;
+    (void)length;
+
+    return NULL;
 }
 
 int main(void) {

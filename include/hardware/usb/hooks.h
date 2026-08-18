@@ -5,13 +5,22 @@
 
 #include "descriptor.h"
 
+/** デバイスディスクリプタへのポインタ */
+typedef const __code usb_device_descriptor_t* usb_device_descriptor_ptr;
+
+/** コンフィギュレーションディスクリプタへのポインタ */
+typedef const __code usb_configuration_descriptor_t* usb_configuration_descriptor_ptr;
+
+/** インタフェースディスクリプタへのポインタ */
+typedef const __code usb_interface_descriptor_t* usb_interface_descriptor_ptr;
+
 /**
  * @brief デバイスディスクリプタ取得フック
  * @note この関数はユーザプログラムで実装する必要があります。
  *
  * @return const __code* デバイスディスクリプタへのポインタ
  */
-extern const __code usb_device_descriptor_t* usb_get_device_descriptor(void);
+extern usb_device_descriptor_ptr usb_get_device_descriptor(void);
 
 /**
  * @brief コンフィギュレーションディスクリプタ取得フック
@@ -19,7 +28,7 @@ extern const __code usb_device_descriptor_t* usb_get_device_descriptor(void);
  *
  * @return const __code* コンフィギュレーションディスクリプタへのポインタ
  */
-extern const __code usb_configuration_descriptor_t* usb_get_configuration_descriptor(void);
+extern usb_configuration_descriptor_ptr usb_get_configuration_descriptor(void);
 
 /**
  * @brief インタフェースディスクリプタ取得フック
@@ -30,7 +39,7 @@ extern const __code usb_configuration_descriptor_t* usb_get_configuration_descri
  * @param index インタフェースディスクリプタのインデックス
  * @return const __code* インタフェースディスクリプタへのポインタ
  */
-extern const __code usb_interface_descriptor_t* usb_get_interface_descriptor(uint8_t index);
+extern usb_interface_descriptor_ptr usb_get_interface_descriptor(uint8_t index);
 
 /**
  * @brief インタフェース従属ディスクリプタ取得フック
