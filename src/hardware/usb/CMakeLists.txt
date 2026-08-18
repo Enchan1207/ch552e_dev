@@ -10,4 +10,5 @@ target_sources(usb PRIVATE
     ep0/setup.c
     ep0/in.c
     ep0/out.c
+    ep0/prepare.c
 )
