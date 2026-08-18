@@ -6,15 +6,20 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef struct {
-    volatile bool txBusy;
-    const uint8_t* volatile txDataPtr;
-    volatile size_t txRemaining;
+/** UART1の受信バッファxRAMアドレス */
+#define UART1_BUFFER_ADDRESS 0x0100
 
-    volatile uint8_t rxBuffer[UART1_RX_BUFSIZE];
-    volatile uint8_t rxHead;
-    volatile uint8_t rxTail;
+typedef struct {
+    volatile bool tx_busy;
+    const uint8_t* volatile tx_data_ptr;
+    volatile size_t tx_remaining;
+    volatile uint8_t rx_head;
+    volatile uint8_t rx_tail;
 } uart1_ctx_t;
+
+extern __xdata __at(UART1_BUFFER_ADDRESS)
+/** xRAM上のUART1のバッファ */
+uint8_t rx_buffer[UART1_RX_BUFSIZE];
 
 extern uart1_ctx_t uart1;
 
