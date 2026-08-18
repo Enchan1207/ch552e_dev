@@ -12,17 +12,20 @@ typedef enum {
     /** 初期状態 */
     USB_STATE_INIT,
 
-    /** アイドル (リクエストを処理できる状態) */
-    USB_STATE_IDLE,
-
     /** デバイスアドレス確定待ち */
-    USB_STATE_ADDRESS_PENDING,
+    USB_STATE_WAIT_DEVICE_ADDRESS,
 
     /** デバイスディスクリプタ送信中 */
     USB_STATE_GET_DEVICE_DESCRIPTOR,
 
     /** コンフィギュレーションディスクリプタ送信中 */
     USB_STATE_GET_CONFIGURATION_DESCRIPTOR,
+
+    /** StatusステージでOUTを待機中 */
+    USB_STATE_WAIT_STATUS_OUT,
+
+    /** アイドル (リクエストを処理できる状態) */
+    USB_STATE_IDLE,
 } usb_ep0_state;
 
 /** USBコンテキスト */
@@ -66,12 +69,27 @@ inline void usb_ep0_stall(void) {
 }
 
 /**
- * @brief SETUPパケットを処理する
+ * @brief SETUPを処理する
  *
  * @param ctx
  * @param packet
  * @return bool 処理成否
  */
 bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, const usb_setup_packet_t __xdata* packet);
+
+/**
+ * @brief INを処理する
+ *
+ * @param ctx
+ */
+void usb_ep0_handle_in(usb_ep0_ctx_t* ctx);
+
+/**
+ * @brief OUTを処理する
+ *
+ * @param ctx
+ * @param length
+ */
+void usb_ep0_handle_out(usb_ep0_ctx_t* ctx, uint8_t length);
 
 #endif /* HARDWARE_USB_EP0_CONTEXT_H */

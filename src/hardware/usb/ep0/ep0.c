@@ -44,11 +44,11 @@ void usb_ep0_handle_packet(uint8_t token, uint8_t length) {
             break;
 
         case UIS_TOKEN_IN:
-            /* code */
+            usb_ep0_handle_in(&ctx);
             break;
 
         case UIS_TOKEN_OUT:
-            /* code */
+            usb_ep0_handle_out(&ctx, length);
             break;
 
         default:

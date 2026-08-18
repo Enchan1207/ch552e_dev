@@ -31,7 +31,7 @@ static inline bool is_set_address(const usb_setup_packet_t __xdata* packet) {
 
 bool usb_ep0_handle_setup(usb_ep0_ctx_t* ctx, const usb_setup_packet_t __xdata* packet) {
     if (is_set_address(packet)) {
-        ctx->state = USB_STATE_ADDRESS_PENDING;
+        ctx->state = USB_STATE_WAIT_DEVICE_ADDRESS;
         ctx->address_pending.address_candidate = packet->wValue;
 
         UEP0_T_LEN = 0x00;
