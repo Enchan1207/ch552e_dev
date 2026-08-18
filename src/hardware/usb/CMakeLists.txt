@@ -8,4 +8,6 @@ target_sources(usb PRIVATE
 
     ep0/ep0.c
     ep0/setup.c
+    ep0/in.c
+    ep0/out.c
 )
