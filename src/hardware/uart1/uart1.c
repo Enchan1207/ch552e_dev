@@ -1,6 +1,7 @@
-#include "hardware/uart1.h"
+#include <ch552e/io.h>
+#include <hardware/uart1.h>
 
-#include "ch552e/io.h"
+#include "context.h"
 
 #ifndef F_SYS
 #error F_SYS is not defined.
@@ -12,37 +13,28 @@
                (((uint32_t)(F_SYS) + (8UL * (uint32_t)(baud))) / \
                 (16UL * (uint32_t)(baud)))))
 
-typedef struct {
-    volatile bool txBusy;
-    const uint8_t* volatile txDataPtr;
-    volatile size_t txRemaining;
-
-    volatile uint8_t rxBuffer[UART1_RX_BUFSIZE];
-    volatile uint8_t rxHead;
-    volatile uint8_t rxTail;
-} uart1_ctx_t;
-
-static uart1_ctx_t uart1 = {
-    .txBusy = false,
-    .txDataPtr = NULL,
-    .txRemaining = 0,
-
-    .rxBuffer = {0},
-    .rxHead = 0,
-    .rxTail = 0,
+__idata uart1_ctx_t uart1 = {
+    .tx_busy = false,
+    .tx_data_ptr = NULL,
+    .tx_remaining = 0,
+    .rx_head = 0,
+    .rx_tail = 0,
 };
+
+__xdata __at(UART1_BUFFER_ADDRESS)
+uint8_t rx_buffer[UART1_RX_BUFSIZE];
 
 // UART1割込み
 ISR(INT_NO_UART1) {
     // 受信完了
     if (U1RI) {
         uint8_t data = SBUF1;
-        uint8_t nextTail = (uart1.rxTail + 1) & (UART1_RX_BUFSIZE - 1);
+        uint8_t nextTail = (uart1.rx_tail + 1) & (UART1_RX_BUFSIZE - 1);
 
         // バッファがいっぱいの場合は読み捨て
-        if (nextTail != uart1.rxHead) {
-            uart1.rxBuffer[uart1.rxTail] = data;
-            uart1.rxTail = nextTail;
+        if (nextTail != uart1.rx_head) {
+            rx_buffer[uart1.rx_tail] = data;
+            uart1.rx_tail = nextTail;
         }
 
         U1RI = 0;
@@ -52,12 +44,12 @@ ISR(INT_NO_UART1) {
     if (U1TI) {
         U1TI = 0;
 
-        if (uart1.txRemaining > 0) {
-            SBUF1 = *uart1.txDataPtr;
-            uart1.txDataPtr++;
-            uart1.txRemaining--;
+        if (uart1.tx_remaining > 0) {
+            SBUF1 = *uart1.tx_data_ptr;
+            uart1.tx_data_ptr++;
+            uart1.tx_remaining--;
         } else {
-            uart1.txBusy = false;
+            uart1.tx_busy = false;
         }
     }
 }
@@ -77,29 +69,38 @@ void uart_begin(void) {
 
 void uart_write(const uint8_t* const data, size_t len) {
     uart_write_noblock(data, len);
-    while (uart1.txBusy);
+    while (uart1.tx_busy);
 }
 
 void uart_write_noblock(const uint8_t* const data, size_t len) {
-    while (uart1.txBusy);
+    while (uart1.tx_busy);
 
     if (len == 0) {
         return;
     }
 
-    uart1.txDataPtr = data;
-    uart1.txRemaining = len - 1;
-    uart1.txBusy = true;
+    uart1.tx_data_ptr = data;
+    uart1.tx_remaining = len - 1;
+    uart1.tx_busy = true;
 
     // 最初の1byteを書いておく
-    SBUF1 = *uart1.txDataPtr;
-    uart1.txDataPtr++;
+    SBUF1 = *uart1.tx_data_ptr;
+    uart1.tx_data_ptr++;
+}
+
+void uart_write_byte(char data) {
+    while (uart1.tx_busy);
+    uart1.tx_busy = true;
+    uart1.tx_remaining = 0;
+    SBUF1 = data;
+
+    while (uart1.tx_busy);
 }
 
 void uart_print(const char* const str) {
     uart_print_noblock(str);
 
-    while (uart1.txBusy);
+    while (uart1.tx_busy);
 }
 
 void uart_print_noblock(const char* const str) {
@@ -111,17 +112,24 @@ void uart_print_noblock(const char* const str) {
     uart_write_noblock((const uint8_t*)str, len);
 }
 
-uint8_t uart_read(void) {
-    while (uart1.rxHead == uart1.rxTail);
+static const __code char hex_literal[] = "0123456789ABCDEF";
 
-    uint8_t data = uart1.rxBuffer[uart1.rxHead];
-    uart1.rxHead = (uart1.rxHead + 1) & (UART1_RX_BUFSIZE - 1);
+void uart_print_hex(uint8_t value) {
+    uart_write_byte(hex_literal[value >> 4]);
+    uart_write_byte(hex_literal[value & 0b1111]);
+}
+
+uint8_t uart_read(void) {
+    while (uart1.rx_head == uart1.rx_tail);
+
+    uint8_t data = rx_buffer[uart1.rx_head];
+    uart1.rx_head = (uart1.rx_head + 1) & (UART1_RX_BUFSIZE - 1);
 
     return data;
 }
 
 bool uart_available(void) {
-    return uart1.rxHead != uart1.rxTail;
+    return uart1.rx_head != uart1.rx_tail;
 }
 
 #undef UART1_BAUD_VALUE

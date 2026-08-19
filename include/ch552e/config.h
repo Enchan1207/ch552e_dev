@@ -1,7 +1,7 @@
 #ifndef CH552E_CONFIG_H
 #define CH552E_CONFIG_H
 
-#include "sdcc/identifier.h"
+#include <sdcc/identifier.h>
 
 /**
  * @brief

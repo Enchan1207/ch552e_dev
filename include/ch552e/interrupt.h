@@ -1,8 +1,9 @@
 #ifndef CH552E_INTERRUPT_H
 #define CH552E_INTERRUPT_H
 
+#include <sdcc/identifier.h>
+
 #include "ch552e/util.h"
-#include "sdcc/identifier.h"
 
 // MARK: - registers
 
