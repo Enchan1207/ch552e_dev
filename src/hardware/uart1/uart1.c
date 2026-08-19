@@ -36,6 +36,10 @@ void uart_begin(void) {
     U1SMOD = 1;
     U1REN = 1;
 
+    // Txピンをpush-pull outputに設定
+    P1_MOD_OC &= ~(1u << 7);
+    P1_DIR_PU |= (1u << 7);
+
     IE_UART1 = 1;
 }
 
