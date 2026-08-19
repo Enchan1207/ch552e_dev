@@ -6,8 +6,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/** UART1の受信バッファxRAMアドレス */
+#ifndef UART1_BUFFER_ADDRESS
+/** UART1受信バッファxRAMアドレス */
 #define UART1_BUFFER_ADDRESS 0x0100
+#endif
 
 typedef struct {
     volatile bool tx_busy;

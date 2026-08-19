@@ -8,7 +8,7 @@
 #include "ch552e/interrupt.h"
 
 #ifndef UART1_RX_BUFSIZE
-/// @brief 受信バッファサイズ
+/// @brief UART1受信バッファサイズ
 #define UART1_RX_BUFSIZE 32
 #endif
 
