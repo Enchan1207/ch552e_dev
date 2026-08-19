@@ -93,9 +93,6 @@ typedef struct {
 
 } usb_ep0_ctx_t;
 
-/** USB EP0コンテキストのポインタ */
-typedef __idata usb_ep0_ctx_t* usb_ep0_ctx_ptr;
-
 /** SETUPパケット */
 typedef struct {
     uint8_t bmRequestType;
@@ -121,7 +118,7 @@ extern __xdata __at(USB_EP0_BUFFER_ADDRESS)
 uint8_t ep0_buffer[USB_EP0_BUFFER_SIZE];
 
 /** EP0コンテキスト */
-extern __idata usb_ep0_ctx_t* ctx;
+extern __idata usb_ep0_ctx_t* usb_ep0_ctx;
 
 // MARK: - functions
 

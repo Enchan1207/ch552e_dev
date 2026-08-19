@@ -9,7 +9,7 @@ static __idata usb_ep0_ctx_t ctx_internal = {
     .state = USB_STATE_INIT,
 };
 
-usb_ep0_ctx_ptr ctx = &ctx_internal;
+__idata usb_ep0_ctx_t* usb_ep0_ctx = &ctx_internal;
 
 __xdata __at(USB_EP0_BUFFER_ADDRESS)
 uint8_t ep0_buffer[64];
@@ -20,8 +20,8 @@ void usb_ep0_init(void) {
 }
 
 void usb_ep0_reset(void) {
-    ctx->state = USB_STATE_INIT;
-    ctx->configuration = 0x00;
+    usb_ep0_ctx->state = USB_STATE_INIT;
+    usb_ep0_ctx->configuration = 0x00;
 
     UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
     UEP0_T_LEN = 0x00;
