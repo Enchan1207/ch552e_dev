@@ -5,6 +5,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// MARK: - macros
+
+#define min(lhs, rhs) (lhs > rhs ? rhs : lhs)
+#define max(lhs, rhs) (lhs > rhs ? lhs : rhs)
+
 // MARK: - structs
 
 /** EP0の状態 */

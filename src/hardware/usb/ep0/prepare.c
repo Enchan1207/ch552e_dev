@@ -83,10 +83,6 @@ static inline bool move_to_next_descriptor(usb_ep0_ctx_ptr ctx) {
     }
 }
 
-static inline uint8_t min(uint8_t lhs, uint8_t rhs) {
-    return lhs > rhs ? rhs : lhs;
-}
-
 uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
     if (ctx->state != USB_STATE_SEND_CONFIGURATION_DESCRIPTOR) {
         return 0;
@@ -108,10 +104,6 @@ uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
         uint8_t offset = ctx->configuration_stream.offset;
         uint8_t descriptor_size = ctx->configuration_stream.descriptor_size;
 
-        // コピー元とコピー先を特定
-        const __code uint8_t* src = ctx->configuration_stream.descriptor + offset;
-        __xdata uint8_t* dest = ep0_buffer + filled_bytes;
-
         // コピー長を決定
         uint8_t desciptor_remaining = descriptor_size - offset;
         uint8_t buffer_remaining = USB_EP0_BUFFER_SIZE - filled_bytes;
@@ -119,6 +111,10 @@ uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
         if (ctx->configuration_stream.remaining < copy_size) {
             copy_size = ctx->configuration_stream.remaining;
         }
+
+        // コピー元とコピー先を特定
+        const __code uint8_t* src = ctx->configuration_stream.descriptor + offset;
+        __xdata uint8_t* dest = ep0_buffer + filled_bytes;
 
         memcpy_code_to_xdata(dest, src, copy_size);
 
