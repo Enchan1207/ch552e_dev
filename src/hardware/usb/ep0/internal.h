@@ -97,9 +97,25 @@ typedef struct {
 typedef struct {
     uint8_t bmRequestType;
     uint8_t bRequest;
-    uint16_t wValue;
+    union {
+        uint16_t raw;
+
+        struct {
+            uint8_t l;
+            uint8_t h;
+        };
+    } wValue;
+
     uint16_t wIndex;
-    uint16_t wLength;
+
+    union {
+        uint16_t raw;
+
+        struct {
+            uint8_t l;
+            uint8_t h;
+        };
+    } wLength;
 } usb_setup_packet_t;
 
 /** SETUPパケットのポインタ */
