@@ -20,11 +20,10 @@ static bool retrieve_interface_descriptor(void) {
 }
 
 static bool move_to_next_interface_child_descriptor(void) {
-    uint8_t size = 0;
     const __code uint8_t* child_descriptor = usb_get_interface_child_descriptor(
         usb_ep0_ctx->configuration_stream.if_index,
         usb_ep0_ctx->configuration_stream.index,
-        &size);
+        &usb_ep0_ctx->configuration_stream.descriptor_size);
 
     // 取得できなければ次のI/Fディスクリプタに進む
     if (child_descriptor == NULL) {
@@ -34,7 +33,6 @@ static bool move_to_next_interface_child_descriptor(void) {
     usb_ep0_ctx->configuration_stream.phase = USB_CONFIGURATION_STREAM_PHASE_INTERFACE_CHILD;
     usb_ep0_ctx->configuration_stream.index++;
     usb_ep0_ctx->configuration_stream.descriptor = child_descriptor;
-    usb_ep0_ctx->configuration_stream.descriptor_size = size;
     usb_ep0_ctx->configuration_stream.offset = 0;
     return true;
 }
