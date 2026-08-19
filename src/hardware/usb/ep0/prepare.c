@@ -5,7 +5,7 @@
 
 #include "internal.h"
 
-static bool retrieve_interface_descriptor(usb_ep0_ctx_ptr ctx) {
+static bool retrieve_interface_descriptor(void) {
     usb_interface_descriptor_ptr interface_descriptor = usb_get_interface_descriptor(ctx->configuration_stream.if_index);
     if (interface_descriptor == NULL) {
         return false;
@@ -19,7 +19,7 @@ static bool retrieve_interface_descriptor(usb_ep0_ctx_ptr ctx) {
     return true;
 }
 
-static bool move_to_next_interface_child_descriptor(usb_ep0_ctx_ptr ctx) {
+static bool move_to_next_interface_child_descriptor(void) {
     uint8_t size = 0;
     const __code uint8_t* child_descriptor = usb_get_interface_child_descriptor(
         ctx->configuration_stream.if_index,
@@ -45,7 +45,7 @@ static bool move_to_next_interface_child_descriptor(usb_ep0_ctx_ptr ctx) {
  * @param ctx
  * @return bool ディスクリプタ列挙ループを続行可能かどうか
  */
-static inline bool move_to_next_descriptor(usb_ep0_ctx_ptr ctx) {
+static inline bool move_to_next_descriptor(void) {
     // オフセットがディスクリプタサイズに達していない = まだ送りきっていない, 現状維持
     if (ctx->configuration_stream.offset <
         ctx->configuration_stream.descriptor_size) {
@@ -54,25 +54,17 @@ static inline bool move_to_next_descriptor(usb_ep0_ctx_ptr ctx) {
 
     switch (ctx->configuration_stream.phase) {
         case USB_CONFIGURATION_STREAM_PHASE_CONFIGURATION: {
-            retrieve_interface_descriptor(ctx);
+            retrieve_interface_descriptor();
             return true;
         }
 
-        case USB_CONFIGURATION_STREAM_PHASE_INTERFACE: {
-            bool moved = move_to_next_interface_child_descriptor(ctx);
-            if (!moved) {
-                ctx->configuration_stream.if_index++;
-                return retrieve_interface_descriptor(ctx);
-            }
-
-            return true;
-        }
-
+        // FIXME: ここのfall-throughは気持ち悪い
+        case USB_CONFIGURATION_STREAM_PHASE_INTERFACE:
         case USB_CONFIGURATION_STREAM_PHASE_INTERFACE_CHILD: {
-            bool moved = move_to_next_interface_child_descriptor(ctx);
+            bool moved = move_to_next_interface_child_descriptor();
             if (!moved) {
                 ctx->configuration_stream.if_index++;
-                return retrieve_interface_descriptor(ctx);
+                return retrieve_interface_descriptor();
             }
 
             return true;
@@ -83,7 +75,7 @@ static inline bool move_to_next_descriptor(usb_ep0_ctx_ptr ctx) {
     }
 }
 
-uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
+uint8_t usb_ep0_prepare_descriptor(void) {
     if (ctx->state != USB_STATE_SEND_CONFIGURATION_DESCRIPTOR) {
         return 0;
     }
@@ -128,7 +120,7 @@ uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
         }
 
         // 次のディスクリプタへ
-        bool has_next_descriptor = move_to_next_descriptor(ctx);
+        bool has_next_descriptor = move_to_next_descriptor();
         if (!has_next_descriptor) {
             break;
         }

@@ -37,7 +37,7 @@ static bool is_set_configuration(usb_setup_packet_ptr packet) {
            (packet->wValue == 0 || packet->wValue == 1);
 }
 
-bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet) {
+bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
     if (is_set_address(packet)) {
         ctx->state = USB_STATE_WAIT_DEVICE_ADDRESS;
         ctx->address_pending.address_candidate = packet->wValue;
@@ -75,7 +75,7 @@ bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet) {
         ctx->configuration_stream.if_index = 0;
         ctx->configuration_stream.index = 0;
 
-        uint8_t filled_length = usb_ep0_prepare_descriptor(ctx);
+        uint8_t filled_length = usb_ep0_prepare_descriptor();
         size_t tx_length = filled_length > packet->wLength ? packet->wLength : filled_length;
 
         UEP0_T_LEN = tx_length;

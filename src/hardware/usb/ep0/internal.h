@@ -120,6 +120,9 @@ extern __xdata __at(USB_EP0_BUFFER_ADDRESS)
 /** xRAM上のEP0のバッファ */
 uint8_t ep0_buffer[USB_EP0_BUFFER_SIZE];
 
+/** EP0コンテキスト */
+extern __idata usb_ep0_ctx_t* ctx;
+
 // MARK: - functions
 
 /** EP0をSTALL状態にする */
@@ -132,34 +135,30 @@ inline void usb_ep0_stall(void) {
 /**
  * @brief SETUPを処理する
  *
- * @param ctx
  * @param packet
  * @return bool 処理成否
  */
-bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet);
+bool usb_ep0_handle_setup(usb_setup_packet_ptr packet);
 
 /**
  * @brief INを処理する
  *
- * @param ctx
  */
-void usb_ep0_handle_in(usb_ep0_ctx_ptr ctx);
+void usb_ep0_handle_in(void);
 
 /**
  * @brief OUTを処理する
  *
- * @param ctx
  * @param length
  */
-void usb_ep0_handle_out(usb_ep0_ctx_ptr ctx, uint8_t length);
+void usb_ep0_handle_out(uint8_t length);
 
 /**
  * @brief ディスクリプタ返答用のデータを準備する
  * @note コンフィギュレーションディスクリプタ送信要求に対する応答に利用することを想定しています。
  *
- * @param ctx
  * @return 実際に詰めたデータの長さ
  */
-uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx);
+uint8_t usb_ep0_prepare_descriptor(void);
 
 #endif /* HARDWARE_USB_EP0_CONTEXT_H */
