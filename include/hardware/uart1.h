@@ -8,7 +8,7 @@
 #include "ch552e/interrupt.h"
 
 #ifndef UART1_RX_BUFSIZE
-/// @brief UART1受信バッファサイズ
+/** UART1受信バッファサイズ */
 #define UART1_RX_BUFSIZE 32
 #endif
 
@@ -17,55 +17,54 @@
 #endif
 
 #ifndef UART1_BAUD_RATE
-/// @brief UART1ボーレート
+/** UART1ボーレート */
 #define UART1_BAUD_RATE 9600
 #endif
 
 ISR(INT_NO_UART1);
 
-/// @brief UART1通信開始
-/// @note ボーレートはマクロ UART_BAUD_RATE により設定します。
+/**
+ * @brief UART1を初期化し、通信を開始する
+ *
+ * @note ボーレートを変更する場合は、include前に `UART1_BAUD_RATE` をdefineしてください。
+ */
 void uart_begin(void);
 
-/// @brief UART送信 (バイナリデータ)
-/// @param data
-/// @param len
-/// @note 与えられたデータの送信が完了するまでブロックします。
-void uart_write(const uint8_t* const data, size_t len);
+/**
+ * @brief 単一byteを送信
+ *
+ * @param data
+ */
+void uart_write(uint8_t data);
 
-/// @brief USART送信 (バイナリデータ, ノンブロッキング)
-/// @param data
-/// @param len
-/// @note 現在実行中の送信がある場合は、完了するまでブロックします。
-void uart_write_noblock(const uint8_t* const data, size_t len);
-
-/// @brief UART送信 (単一バイト)
-/// @param data
-/// @note 与えられたデータの送信が完了するまでブロックします。
-void uart_write_byte(char data);
-
-/// @brief USART送信 (文字列)
-/// @param str
-/// @note 与えられたデータの送信が完了するまでブロックします。
+/**
+ * @brief 文字列を送信
+ *
+ * @param str
+ * @note 終端 (`\0`) が来るまで送信し続けます。
+ */
 void uart_print(const char* const str);
 
-/// @brief USART送信 (文字列, ノンブロッキング)
-/// @param str
-/// @note 現在実行中の送信がある場合は、完了するまでブロックします。
-void uart_print_noblock(const char* const str);
-
-/// @brief 単一byteを16進数形式で表示
-/// @param value
-/// @note 与えられたデータの送信が完了するまでブロックします。
+/**
+ * @brief 単一byteを16進数形式で送信
+ *
+ * @param value
+ */
 void uart_print_hex(uint8_t value);
 
-/// @brief USART受信
-/// @return 受信結果
-/// @note データを受信するまでブロックします。
+/**
+ * @brief 単一byteを受信
+ *
+ * @note 受信が完了するまでブロックします。受信できるデータがあるか確認する場合は `uart_available` を利用します。
+ * @return uint8_t 受信した値
+ */
 uint8_t uart_read(void);
 
-/// @brief 受信バッファ状態確認
-/// @return データを受信していれば true が返ります。
+/**
+ * @brief 受信バッファの状態を取得
+ *
+ * @return 受信できるデータがあるか
+ */
 bool uart_available(void);
 
 #endif /* HARDWARE_UART1_H */
