@@ -16,6 +16,23 @@
 #error "UART1_RX_BUFSIZE must be a power of 2"
 #endif
 
+#if (UART1_RX_BUFSIZE < 2) || (UART1_RX_BUFSIZE > 255)
+#error "UART1_RX_BUFSIZE must be at least 2 and less than 255"
+#endif
+
+#ifndef UART1_TX_BUFSIZE
+/** UART1送信バッファサイズ */
+#define UART1_TX_BUFSIZE 32
+#endif
+
+#if (UART1_TX_BUFSIZE & (UART1_TX_BUFSIZE - 1)) != 0
+#error "UART1_TX_BUFSIZE must be a power of 2"
+#endif
+
+#if (UART1_TX_BUFSIZE < 2) || (UART1_TX_BUFSIZE > 255)
+#error "UART1_TX_BUFSIZE must be at least 2 and less than 255"
+#endif
+
 #ifndef UART1_BAUD_RATE
 /** UART1ボーレート */
 #define UART1_BAUD_RATE 9600

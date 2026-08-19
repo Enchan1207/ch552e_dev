@@ -14,19 +14,21 @@
                 (16UL * (uint32_t)(baud)))))
 
 __idata uart1_ctx_t uart1 = {
-    .tx_busy = false,
-    .tx_data_ptr = NULL,
-    .tx_remaining = 0,
     .rx_head = 0,
     .rx_tail = 0,
+
+    .tx_busy = false,
+    .tx_head = 0,
+    .tx_tail = 0,
 };
 
-__xdata __at(UART1_BUFFER_ADDRESS)
+__xdata __at(UART1_RX_BUFFER_ADDRESS)
 uint8_t rx_buffer[UART1_RX_BUFSIZE];
 
-void uart_begin(void) {
-    irq_disable();
+__xdata __at(UART1_TX_BUFFER_ADDRESS)
+uint8_t tx_buffer[UART1_TX_BUFSIZE];
 
+void uart_begin(void) {
     SBAUD1 = UART1_BAUD_VALUE(UART1_BAUD_RATE);
 
     // 8/N/1, 倍速, 受信有効, 受信割込み有効
@@ -37,56 +39,37 @@ void uart_begin(void) {
     IE_UART1 = 1;
 }
 
-void uart_write(const uint8_t* const data, size_t len) {
-    uart_write_noblock(data, len);
-    while (uart1.tx_busy);
-}
+void uart_write(uint8_t data) {
+    uint8_t next_head = (uart1.tx_head + 1) & (UART1_TX_BUFSIZE - 1);
 
-void uart_write_noblock(const uint8_t* const data, size_t len) {
-    while (uart1.tx_busy);
-
-    if (len == 0) {
-        return;
+    while (next_head == uart1.tx_tail) {
+        // TXバッファがいっぱい
     }
 
-    uart1.tx_data_ptr = data;
-    uart1.tx_remaining = len - 1;
-    uart1.tx_busy = true;
+    tx_buffer[uart1.tx_head] = data;
+    uart1.tx_head = next_head;
 
-    // 最初の1byteを書いておく
-    SBUF1 = *uart1.tx_data_ptr;
-    uart1.tx_data_ptr++;
-}
+    if (!uart1.tx_busy) {
+        uart1.tx_busy = true;
 
-void uart_write_byte(char data) {
-    while (uart1.tx_busy);
-    uart1.tx_busy = true;
-    uart1.tx_remaining = 0;
-    SBUF1 = data;
-
-    while (uart1.tx_busy);
+        SBUF1 = tx_buffer[uart1.tx_tail];
+        uart1.tx_tail = (uart1.tx_tail + 1) & (UART1_TX_BUFSIZE - 1);
+    }
 }
 
 void uart_print(const char* const str) {
-    uart_print_noblock(str);
+    const char* p = str;
 
-    while (uart1.tx_busy);
-}
-
-void uart_print_noblock(const char* const str) {
-    size_t len = 0;
-    while (str[len] != '\0') {
-        len++;
+    while (*p != '\0') {
+        uart_write(*p++);
     }
-
-    uart_write_noblock((const uint8_t*)str, len);
 }
 
 static const __code char hex_literal[] = "0123456789ABCDEF";
 
 void uart_print_hex(uint8_t value) {
-    uart_write_byte(hex_literal[value >> 4]);
-    uart_write_byte(hex_literal[value & 0b1111]);
+    uart_write(hex_literal[value >> 4]);
+    uart_write(hex_literal[value & 0b1111]);
 }
 
 uint8_t uart_read(void) {
