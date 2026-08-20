@@ -86,6 +86,24 @@ typedef struct {
             /** インタフェース従属ディスクリプタのインデックス */
             uint8_t index;
         } configuration_stream;
+
+        /** コンフィギュレーションディスクリプタのストリーム */
+        struct {
+            /** 送信位置 */
+            const uint8_t __code* cursor;
+
+            /** このディスクリプタの残りバイト数 */
+            uint8_t remaining;
+
+            /** インデックス */
+            struct {
+                /** I/Fディスクリプタのインデックス */
+                uint8_t interface : 3;
+
+                /** I/F従属ディスクリプタのインデックス */
+                uint8_t child : 5;
+            } indices;
+        } config_stream_v2;
     };
 
     /** 現在選択されているコンフィギュレーション */
