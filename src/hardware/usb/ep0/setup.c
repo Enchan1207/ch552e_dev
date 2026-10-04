@@ -65,11 +65,11 @@ bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
 
         usb_configuration_descriptor_ptr config = usb_get_configuration_descriptor();
 
-        usb_ep0_ctx.config_stream_v2.cursor = config;
-        usb_ep0_ctx.config_stream_v2.remaining = config->bLength;
-        usb_ep0_ctx.config_stream_v2.indices.interface = 0;
+        usb_ep0_ctx.config_stream.cursor = config;
+        usb_ep0_ctx.config_stream.remaining = config->bLength;
+        usb_ep0_ctx.config_stream.indices.interface = 0;
         // NOTE: child index 31は "configディスクリプタ送信中" とみなす
-        usb_ep0_ctx.config_stream_v2.indices.child = 0b00011111;
+        usb_ep0_ctx.config_stream.indices.child = 0b00011111;
 
         uint8_t filled_length = usb_ep0_prepare_descriptor();
         size_t tx_length = filled_length > packet->wLength.raw ? packet->wLength.raw : filled_length;

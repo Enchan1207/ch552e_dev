@@ -68,7 +68,7 @@ typedef struct {
                 /** I/F従属ディスクリプタのインデックス */
                 uint8_t child : 5;
             } indices;
-        } config_stream_v2;
+        } config_stream;
     };
 
     /** 現在選択されているコンフィギュレーション */

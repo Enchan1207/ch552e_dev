@@ -12,14 +12,14 @@
  */
 static bool move_to_interface_descriptor(void) {
     usb_interface_descriptor_ptr interface_descriptor = usb_get_interface_descriptor(
-        usb_ep0_ctx.config_stream_v2.indices.interface);
+        usb_ep0_ctx.config_stream.indices.interface);
     if (interface_descriptor == NULL) {
         return false;
     }
 
-    usb_ep0_ctx.config_stream_v2.cursor = interface_descriptor;
-    usb_ep0_ctx.config_stream_v2.remaining = interface_descriptor->bLength;
-    usb_ep0_ctx.config_stream_v2.indices.child = 0;
+    usb_ep0_ctx.config_stream.cursor = interface_descriptor;
+    usb_ep0_ctx.config_stream.remaining = interface_descriptor->bLength;
+    usb_ep0_ctx.config_stream.indices.child = 0;
     return true;
 }
 
@@ -30,16 +30,16 @@ static bool move_to_interface_descriptor(void) {
  */
 static bool move_to_interface_child_descriptor(void) {
     const __code uint8_t* child_descriptor = usb_get_interface_child_descriptor(
-        usb_ep0_ctx.config_stream_v2.indices.interface,
-        usb_ep0_ctx.config_stream_v2.indices.child,
-        &usb_ep0_ctx.config_stream_v2.remaining);
+        usb_ep0_ctx.config_stream.indices.interface,
+        usb_ep0_ctx.config_stream.indices.child,
+        &usb_ep0_ctx.config_stream.remaining);
 
     if (child_descriptor == NULL) {
         return false;
     }
 
-    usb_ep0_ctx.config_stream_v2.cursor = child_descriptor;
-    usb_ep0_ctx.config_stream_v2.indices.child++;
+    usb_ep0_ctx.config_stream.cursor = child_descriptor;
+    usb_ep0_ctx.config_stream.indices.child++;
     return true;
 }
 
@@ -50,7 +50,7 @@ static bool move_to_interface_child_descriptor(void) {
  */
 static inline bool move_to_next_descriptor(void) {
     // child index 31 はコンフィギュレーションディスクリプタ送信中を表す。
-    if (usb_ep0_ctx.config_stream_v2.indices.child == 0b00011111) {
+    if (usb_ep0_ctx.config_stream.indices.child == 0b00011111) {
         return move_to_interface_descriptor();
     }
 
@@ -59,11 +59,11 @@ static inline bool move_to_next_descriptor(void) {
     }
 
     // 3 bit の interface index で表現できるのは 0-7。
-    if (usb_ep0_ctx.config_stream_v2.indices.interface == 0b00000111) {
+    if (usb_ep0_ctx.config_stream.indices.interface == 0b00000111) {
         return false;
     }
 
-    usb_ep0_ctx.config_stream_v2.indices.interface++;
+    usb_ep0_ctx.config_stream.indices.interface++;
     return move_to_interface_descriptor();
 }
 
@@ -72,7 +72,7 @@ uint8_t usb_ep0_prepare_descriptor(void) {
         return 0;
     }
 
-    if (usb_ep0_ctx.config_stream_v2.cursor == NULL) {
+    if (usb_ep0_ctx.config_stream.cursor == NULL) {
         return 0;
     }
 
@@ -80,29 +80,29 @@ uint8_t usb_ep0_prepare_descriptor(void) {
     uint8_t filled_bytes = 0x00;
 
     // 全て送信し終えるか、バッファがいっぱいになるまで続ける
-    while (usb_ep0_ctx.config_stream_v2.cursor != NULL && filled_bytes < USB_EP0_BUFFER_SIZE) {
+    while (usb_ep0_ctx.config_stream.cursor != NULL && filled_bytes < USB_EP0_BUFFER_SIZE) {
         // コピー長を決定
         uint8_t buffer_remaining = USB_EP0_BUFFER_SIZE - filled_bytes;
-        uint8_t copy_size = min(usb_ep0_ctx.config_stream_v2.remaining, buffer_remaining);
+        uint8_t copy_size = min(usb_ep0_ctx.config_stream.remaining, buffer_remaining);
 
         // コピー元とコピー先を特定
         __xdata uint8_t* dest = ep0_buffer + filled_bytes;
 
-        memcpy_code_to_xdata(dest, usb_ep0_ctx.config_stream_v2.cursor, copy_size);
+        memcpy_code_to_xdata(dest, usb_ep0_ctx.config_stream.cursor, copy_size);
 
-        usb_ep0_ctx.config_stream_v2.cursor += copy_size;
-        usb_ep0_ctx.config_stream_v2.remaining -= copy_size;
+        usb_ep0_ctx.config_stream.cursor += copy_size;
+        usb_ep0_ctx.config_stream.remaining -= copy_size;
         filled_bytes += copy_size;
 
         // 全部コピーした?
-        if (usb_ep0_ctx.config_stream_v2.remaining != 0) {
+        if (usb_ep0_ctx.config_stream.remaining != 0) {
             continue;
         }
 
         // 次のディスクリプタへ
         bool has_next_descriptor = move_to_next_descriptor();
         if (!has_next_descriptor) {
-            usb_ep0_ctx.config_stream_v2.cursor = NULL;
+            usb_ep0_ctx.config_stream.cursor = NULL;
             break;
         }
     }
