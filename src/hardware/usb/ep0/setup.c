@@ -39,8 +39,8 @@ static bool is_set_configuration(usb_setup_packet_ptr packet) {
 
 bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
     if (is_set_address(packet)) {
-        usb_ep0_ctx->state = USB_STATE_WAIT_DEVICE_ADDRESS;
-        usb_ep0_ctx->address_pending.address_candidate = packet->wValue.l;
+        usb_ep0_ctx.state = USB_STATE_WAIT_DEVICE_ADDRESS;
+        usb_ep0_ctx.address_pending.address_candidate = packet->wValue.l;
 
         UEP0_T_LEN = 0x00;
         UEP0_CTRL = bUEP_T_TOG | bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;
@@ -48,7 +48,7 @@ bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
     }
 
     if (is_get_device_descriptor(packet)) {
-        usb_ep0_ctx->state = USB_STATE_SEND_DEVICE_DESCRIPTOR;
+        usb_ep0_ctx.state = USB_STATE_SEND_DEVICE_DESCRIPTOR;
 
         usb_device_descriptor_ptr descriptor = usb_get_device_descriptor();
         uint8_t descriptor_size = descriptor->bLength;
@@ -61,15 +61,15 @@ bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
     }
 
     if (is_get_configuration_descriptor(packet)) {
-        usb_ep0_ctx->state = USB_STATE_SEND_CONFIGURATION_DESCRIPTOR;
+        usb_ep0_ctx.state = USB_STATE_SEND_CONFIGURATION_DESCRIPTOR;
 
         usb_configuration_descriptor_ptr config = usb_get_configuration_descriptor();
 
-        usb_ep0_ctx->config_stream_v2.cursor = config;
-        usb_ep0_ctx->config_stream_v2.remaining = config->bLength;
-        usb_ep0_ctx->config_stream_v2.indices.interface = 0;
+        usb_ep0_ctx.config_stream_v2.cursor = config;
+        usb_ep0_ctx.config_stream_v2.remaining = config->bLength;
+        usb_ep0_ctx.config_stream_v2.indices.interface = 0;
         // NOTE: child index 31は "configディスクリプタ送信中" とみなす
-        usb_ep0_ctx->config_stream_v2.indices.child = 0b00011111;
+        usb_ep0_ctx.config_stream_v2.indices.child = 0b00011111;
 
         uint8_t filled_length = usb_ep0_prepare_descriptor();
         size_t tx_length = filled_length > packet->wLength.raw ? packet->wLength.raw : filled_length;
@@ -80,8 +80,8 @@ bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
     }
 
     if (is_set_configuration(packet)) {
-        usb_ep0_ctx->state = USB_STATE_WAIT_SET_CONFIGURATION;
-        usb_ep0_ctx->configuration_pending.configuration_candidate = packet->wValue.l;
+        usb_ep0_ctx.state = USB_STATE_WAIT_SET_CONFIGURATION;
+        usb_ep0_ctx.configuration_pending.configuration_candidate = packet->wValue.l;
 
         UEP0_T_LEN = 0;
         UEP0_CTRL = bUEP_T_TOG | bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;

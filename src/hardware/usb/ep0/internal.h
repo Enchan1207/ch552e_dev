@@ -117,7 +117,7 @@ extern __xdata __at(USB_EP0_BUFFER_ADDRESS)
 uint8_t ep0_buffer[USB_EP0_BUFFER_SIZE];
 
 /** EP0コンテキスト */
-extern __idata usb_ep0_ctx_t* usb_ep0_ctx;
+extern __idata usb_ep0_ctx_t usb_ep0_ctx;
 
 // MARK: - functions
 
