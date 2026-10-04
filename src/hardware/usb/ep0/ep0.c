@@ -37,10 +37,10 @@ static void copy_setup_packet(usb_setup_packet_t* _dest, const __xdata void* _sr
     }
 }
 
-void usb_ep0_handle_packet(uint8_t token, uint8_t length) {
+void usb_ep0_handle_packet(uint8_t token) {
     switch (token) {
         case UIS_TOKEN_SETUP:
-            if (length != 8) {
+            if (USB_RX_LEN != 8) {
                 usb_ep0_stall();
                 break;
             }
@@ -64,7 +64,7 @@ void usb_ep0_handle_packet(uint8_t token, uint8_t length) {
             break;
 
         case UIS_TOKEN_OUT:
-            usb_ep0_handle_out(length);
+            usb_ep0_handle_out(USB_RX_LEN);
             break;
 
         default:

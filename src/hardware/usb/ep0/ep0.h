@@ -17,8 +17,7 @@ void usb_ep0_reset(void);
  * @brief EP0のパケットを処理する
  *
  * @param token パケットのトークン
- * @param length パケットの長さ
  */
-void usb_ep0_handle_packet(uint8_t token, uint8_t length);
+void usb_ep0_handle_packet(uint8_t token);
 
 #endif /* HARDWARE_USB_EP0_EP0_H */
