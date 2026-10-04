@@ -36,18 +36,6 @@ typedef enum {
     USB_STATE_IDLE,
 } usb_ep0_state;
 
-/** configストリームのフェーズ */
-typedef enum {
-    /** コンフィギュレーションディスクリプタを送信 */
-    USB_CONFIGURATION_STREAM_PHASE_CONFIGURATION,
-
-    /** インタフェースディスクリプタを送信 */
-    USB_CONFIGURATION_STREAM_PHASE_INTERFACE,
-
-    /** インタフェース従属ディスクリプタを送信 */
-    USB_CONFIGURATION_STREAM_PHASE_INTERFACE_CHILD
-} configuration_stream_phase_t;
-
 /** USBコンテキスト */
 typedef struct {
     /** EP0の状態 */
@@ -63,29 +51,6 @@ typedef struct {
             /** コンフィギュレーション候補 */
             uint8_t configuration_candidate;
         } configuration_pending;
-
-        struct {
-            /** 現在のストリームフェーズ */
-            configuration_stream_phase_t phase;
-
-            /** 現在送信中のディスクリプタのポインタ */
-            const uint8_t __code* descriptor;
-
-            /** 現在送信中のディスクリプタの長さ */
-            uint8_t descriptor_size;
-
-            /** 要求されているデータの全体長 */
-            uint16_t remaining;
-
-            /** 現在送信中のディスクリプタをどこまで送信したか */
-            uint8_t offset;
-
-            /** インタフェースディスクリプタのインデックス */
-            uint8_t if_index;
-
-            /** インタフェース従属ディスクリプタのインデックス */
-            uint8_t index;
-        } configuration_stream;
 
         /** コンフィギュレーションディスクリプタのストリーム */
         struct {
