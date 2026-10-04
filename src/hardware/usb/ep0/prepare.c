@@ -5,98 +5,74 @@
 
 #include "internal.h"
 
-static bool retrieve_interface_descriptor(usb_ep0_ctx_ptr ctx) {
-    usb_interface_descriptor_ptr interface_descriptor = usb_get_interface_descriptor(ctx->configuration_stream.if_index);
+/**
+ * @brief 次のインタフェースディスクリプタをストリームに設定する
+ *
+ * @return 次のインタフェースディスクリプタが存在した場合は true
+ */
+static bool move_to_interface_descriptor(void) {
+    usb_interface_descriptor_ptr interface_descriptor = usb_get_interface_descriptor(
+        usb_ep0_ctx.config_stream.indices.interface);
     if (interface_descriptor == NULL) {
         return false;
     }
 
-    ctx->configuration_stream.phase = USB_CONFIGURATION_STREAM_PHASE_INTERFACE;
-    ctx->configuration_stream.descriptor = interface_descriptor;
-    ctx->configuration_stream.descriptor_size = interface_descriptor->bLength;
-    ctx->configuration_stream.offset = 0;
-    ctx->configuration_stream.index = 0;
+    usb_ep0_ctx.config_stream.cursor = interface_descriptor;
+    usb_ep0_ctx.config_stream.remaining = interface_descriptor->bLength;
+    usb_ep0_ctx.config_stream.indices.child = 0;
     return true;
 }
 
-static bool move_to_next_interface_child_descriptor(usb_ep0_ctx_ptr ctx) {
-    uint8_t size = 0;
+/**
+ * @brief 現在のインタフェースの次の従属ディスクリプタをストリームに設定する
+ *
+ * @return 次の従属ディスクリプタが存在した場合は true
+ */
+static bool move_to_interface_child_descriptor(void) {
     const __code uint8_t* child_descriptor = usb_get_interface_child_descriptor(
-        ctx->configuration_stream.if_index,
-        ctx->configuration_stream.index,
-        &size);
+        usb_ep0_ctx.config_stream.indices.interface,
+        usb_ep0_ctx.config_stream.indices.child,
+        &usb_ep0_ctx.config_stream.remaining);
 
-    // 取得できなければ次のI/Fディスクリプタに進む
     if (child_descriptor == NULL) {
         return false;
     }
 
-    ctx->configuration_stream.phase = USB_CONFIGURATION_STREAM_PHASE_INTERFACE_CHILD;
-    ctx->configuration_stream.index++;
-    ctx->configuration_stream.descriptor = child_descriptor;
-    ctx->configuration_stream.descriptor_size = size;
-    ctx->configuration_stream.offset = 0;
+    usb_ep0_ctx.config_stream.cursor = child_descriptor;
+    usb_ep0_ctx.config_stream.indices.child++;
     return true;
 }
 
 /**
  * @brief 次のディスクリプタに移動する
  *
- * @param ctx
  * @return bool ディスクリプタ列挙ループを続行可能かどうか
  */
-static inline bool move_to_next_descriptor(usb_ep0_ctx_ptr ctx) {
-    // オフセットがディスクリプタサイズに達していない = まだ送りきっていない, 現状維持
-    if (ctx->configuration_stream.offset <
-        ctx->configuration_stream.descriptor_size) {
+static inline bool move_to_next_descriptor(void) {
+    // child index 31 はコンフィギュレーションディスクリプタ送信中を表す。
+    if (usb_ep0_ctx.config_stream.indices.child == 0b00011111) {
+        return move_to_interface_descriptor();
+    }
+
+    if (move_to_interface_child_descriptor()) {
         return true;
     }
 
-    switch (ctx->configuration_stream.phase) {
-        case USB_CONFIGURATION_STREAM_PHASE_CONFIGURATION: {
-            retrieve_interface_descriptor(ctx);
-            return true;
-        }
-
-        case USB_CONFIGURATION_STREAM_PHASE_INTERFACE: {
-            bool moved = move_to_next_interface_child_descriptor(ctx);
-            if (!moved) {
-                ctx->configuration_stream.if_index++;
-                return retrieve_interface_descriptor(ctx);
-            }
-
-            return true;
-        }
-
-        case USB_CONFIGURATION_STREAM_PHASE_INTERFACE_CHILD: {
-            bool moved = move_to_next_interface_child_descriptor(ctx);
-            if (!moved) {
-                ctx->configuration_stream.if_index++;
-                return retrieve_interface_descriptor(ctx);
-            }
-
-            return true;
-        }
-
-        default:
-            return false;
+    // 3 bit の interface index で表現できるのは 0-7。
+    if (usb_ep0_ctx.config_stream.indices.interface == 0b00000111) {
+        return false;
     }
+
+    usb_ep0_ctx.config_stream.indices.interface++;
+    return move_to_interface_descriptor();
 }
 
-static inline uint8_t min(uint8_t lhs, uint8_t rhs) {
-    return lhs > rhs ? rhs : lhs;
-}
-
-uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
-    if (ctx->state != USB_STATE_SEND_CONFIGURATION_DESCRIPTOR) {
+uint8_t usb_ep0_prepare_descriptor(void) {
+    if (usb_ep0_ctx.state != USB_STATE_SEND_CONFIGURATION_DESCRIPTOR) {
         return 0;
     }
 
-    if (ctx->configuration_stream.descriptor == NULL) {
-        return 0;
-    }
-
-    if (ctx->configuration_stream.remaining == 0) {
+    if (usb_ep0_ctx.config_stream.cursor == NULL) {
         return 0;
     }
 
@@ -104,36 +80,29 @@ uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx) {
     uint8_t filled_bytes = 0x00;
 
     // 全て送信し終えるか、バッファがいっぱいになるまで続ける
-    while (ctx->configuration_stream.remaining > 0 && filled_bytes < USB_EP0_BUFFER_SIZE) {
-        uint8_t offset = ctx->configuration_stream.offset;
-        uint8_t descriptor_size = ctx->configuration_stream.descriptor_size;
+    while (usb_ep0_ctx.config_stream.cursor != NULL && filled_bytes < USB_EP0_BUFFER_SIZE) {
+        // コピー長を決定
+        uint8_t buffer_remaining = USB_EP0_BUFFER_SIZE - filled_bytes;
+        uint8_t copy_size = min(usb_ep0_ctx.config_stream.remaining, buffer_remaining);
 
         // コピー元とコピー先を特定
-        const __code uint8_t* src = ctx->configuration_stream.descriptor + offset;
         __xdata uint8_t* dest = ep0_buffer + filled_bytes;
 
-        // コピー長を決定
-        uint8_t desciptor_remaining = descriptor_size - offset;
-        uint8_t buffer_remaining = USB_EP0_BUFFER_SIZE - filled_bytes;
-        uint8_t copy_size = min(desciptor_remaining, buffer_remaining);
-        if (ctx->configuration_stream.remaining < copy_size) {
-            copy_size = ctx->configuration_stream.remaining;
-        }
+        memcpy_code_to_xdata(dest, usb_ep0_ctx.config_stream.cursor, copy_size);
 
-        memcpy_code_to_xdata(dest, src, copy_size);
-
-        ctx->configuration_stream.offset += copy_size;
-        ctx->configuration_stream.remaining -= copy_size;
+        usb_ep0_ctx.config_stream.cursor += copy_size;
+        usb_ep0_ctx.config_stream.remaining -= copy_size;
         filled_bytes += copy_size;
 
         // 全部コピーした?
-        if (desciptor_remaining != copy_size) {
+        if (usb_ep0_ctx.config_stream.remaining != 0) {
             continue;
         }
 
         // 次のディスクリプタへ
-        bool has_next_descriptor = move_to_next_descriptor(ctx);
+        bool has_next_descriptor = move_to_next_descriptor();
         if (!has_next_descriptor) {
+            usb_ep0_ctx.config_stream.cursor = NULL;
             break;
         }
     }

@@ -83,7 +83,9 @@ const __code uint8_t* usb_get_interface_child_descriptor(uint8_t if_index, uint8
 }
 
 int main(void) {
-    usb_setup_fifo_item_t setup_packet;
+    irq_disable();
+
+    __idata usb_setup_fifo_item_t setup_packet;
 
     // クロック設定 (内蔵オシレータ, 6MHz)
     SAFE_MOD = 0x55;

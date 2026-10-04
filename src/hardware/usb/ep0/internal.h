@@ -5,6 +5,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// MARK: - macros
+
+#define min(lhs, rhs) (lhs > rhs ? rhs : lhs)
+#define max(lhs, rhs) (lhs > rhs ? lhs : rhs)
+
 // MARK: - structs
 
 /** EP0の状態 */
@@ -31,18 +36,6 @@ typedef enum {
     USB_STATE_IDLE,
 } usb_ep0_state;
 
-/** configストリームのフェーズ */
-typedef enum {
-    /** コンフィギュレーションディスクリプタを送信 */
-    USB_CONFIGURATION_STREAM_PHASE_CONFIGURATION,
-
-    /** インタフェースディスクリプタを送信 */
-    USB_CONFIGURATION_STREAM_PHASE_INTERFACE,
-
-    /** インタフェース従属ディスクリプタを送信 */
-    USB_CONFIGURATION_STREAM_PHASE_INTERFACE_CHILD
-} configuration_stream_phase_t;
-
 /** USBコンテキスト */
 typedef struct {
     /** EP0の状態 */
@@ -59,28 +52,23 @@ typedef struct {
             uint8_t configuration_candidate;
         } configuration_pending;
 
+        /** コンフィギュレーションディスクリプタのストリーム */
         struct {
-            /** 現在のストリームフェーズ */
-            configuration_stream_phase_t phase;
+            /** 送信位置 */
+            const uint8_t __code* cursor;
 
-            /** 現在送信中のディスクリプタのポインタ */
-            const uint8_t __code* descriptor;
+            /** このディスクリプタの残りバイト数 */
+            uint8_t remaining;
 
-            /** 現在送信中のディスクリプタの長さ */
-            uint8_t descriptor_size;
+            /** インデックス */
+            struct {
+                /** I/Fディスクリプタのインデックス */
+                uint8_t interface : 3;
 
-            /** 要求されているデータの全体長 */
-            uint16_t remaining;
-
-            /** 現在送信中のディスクリプタをどこまで送信したか */
-            uint8_t offset;
-
-            /** インタフェースディスクリプタのインデックス */
-            uint8_t if_index;
-
-            /** インタフェース従属ディスクリプタのインデックス */
-            uint8_t index;
-        } configuration_stream;
+                /** I/F従属ディスクリプタのインデックス */
+                uint8_t child : 5;
+            } indices;
+        } config_stream;
     };
 
     /** 現在選択されているコンフィギュレーション */
@@ -88,16 +76,29 @@ typedef struct {
 
 } usb_ep0_ctx_t;
 
-/** USB EP0コンテキストのポインタ */
-typedef __idata usb_ep0_ctx_t* usb_ep0_ctx_ptr;
-
 /** SETUPパケット */
 typedef struct {
     uint8_t bmRequestType;
     uint8_t bRequest;
-    uint16_t wValue;
+    union {
+        uint16_t raw;
+
+        struct {
+            uint8_t l;
+            uint8_t h;
+        };
+    } wValue;
+
     uint16_t wIndex;
-    uint16_t wLength;
+
+    union {
+        uint16_t raw;
+
+        struct {
+            uint8_t l;
+            uint8_t h;
+        };
+    } wLength;
 } usb_setup_packet_t;
 
 /** SETUPパケットのポインタ */
@@ -115,6 +116,9 @@ extern __xdata __at(USB_EP0_BUFFER_ADDRESS)
 /** xRAM上のEP0のバッファ */
 uint8_t ep0_buffer[USB_EP0_BUFFER_SIZE];
 
+/** EP0コンテキスト */
+extern __idata usb_ep0_ctx_t usb_ep0_ctx;
+
 // MARK: - functions
 
 /** EP0をSTALL状態にする */
@@ -127,34 +131,30 @@ inline void usb_ep0_stall(void) {
 /**
  * @brief SETUPを処理する
  *
- * @param ctx
  * @param packet
  * @return bool 処理成否
  */
-bool usb_ep0_handle_setup(usb_ep0_ctx_ptr ctx, usb_setup_packet_ptr packet);
+bool usb_ep0_handle_setup(usb_setup_packet_ptr packet);
 
 /**
  * @brief INを処理する
  *
- * @param ctx
  */
-void usb_ep0_handle_in(usb_ep0_ctx_ptr ctx);
+void usb_ep0_handle_in(void);
 
 /**
  * @brief OUTを処理する
  *
- * @param ctx
  * @param length
  */
-void usb_ep0_handle_out(usb_ep0_ctx_ptr ctx, uint8_t length);
+void usb_ep0_handle_out(uint8_t length);
 
 /**
  * @brief ディスクリプタ返答用のデータを準備する
  * @note コンフィギュレーションディスクリプタ送信要求に対する応答に利用することを想定しています。
  *
- * @param ctx
  * @return 実際に詰めたデータの長さ
  */
-uint8_t usb_ep0_prepare_descriptor(usb_ep0_ctx_ptr ctx);
+uint8_t usb_ep0_prepare_descriptor(void);
 
 #endif /* HARDWARE_USB_EP0_CONTEXT_H */

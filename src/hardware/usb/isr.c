@@ -7,13 +7,12 @@
 ISR(INT_NO_USB) {
     if (UIF_TRANSFER) {
         uint8_t status = USB_INT_ST;
-        uint8_t length = USB_RX_LEN;
 
         uint8_t endpoint = status & MASK_UIS_ENDP;
         uint8_t token = status & MASK_UIS_TOKEN;
 
         if (endpoint == 0) {
-            usb_ep0_handle_packet(token, length);
+            usb_ep0_handle_packet(token);
         }
 
         // TODO: EP1-4のパケットを処理する
