@@ -80,10 +80,15 @@ uint8_t usb_ep0_prepare_descriptor(void) {
     uint8_t filled_bytes = 0x00;
 
     // 全て送信し終えるか、バッファがいっぱいになるまで続ける
-    while (usb_ep0_ctx.config_stream.cursor != NULL && filled_bytes < USB_EP0_BUFFER_SIZE) {
+    while (usb_ep0_ctx.config_stream.cursor != NULL &&
+           usb_ep0_ctx.config_stream.request_remaining != 0 &&
+           usb_ep0_ctx.config_stream.total_remaining != 0 &&
+           filled_bytes < USB_EP0_BUFFER_SIZE) {
         // コピー長を決定
         uint8_t buffer_remaining = USB_EP0_BUFFER_SIZE - filled_bytes;
         uint8_t copy_size = min(usb_ep0_ctx.config_stream.remaining, buffer_remaining);
+        copy_size = min(copy_size, usb_ep0_ctx.config_stream.request_remaining);
+        copy_size = min(copy_size, usb_ep0_ctx.config_stream.total_remaining);
 
         // コピー元とコピー先を特定
         __xdata uint8_t* dest = ep0_buffer + filled_bytes;
@@ -92,7 +97,14 @@ uint8_t usb_ep0_prepare_descriptor(void) {
 
         usb_ep0_ctx.config_stream.cursor += copy_size;
         usb_ep0_ctx.config_stream.remaining -= copy_size;
+        usb_ep0_ctx.config_stream.request_remaining -= copy_size;
+        usb_ep0_ctx.config_stream.total_remaining -= copy_size;
         filled_bytes += copy_size;
+
+        if (usb_ep0_ctx.config_stream.request_remaining == 0 ||
+            usb_ep0_ctx.config_stream.total_remaining == 0) {
+            break;
+        }
 
         // 全部コピーした?
         if (usb_ep0_ctx.config_stream.remaining != 0) {

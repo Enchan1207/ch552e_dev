@@ -29,6 +29,9 @@ typedef enum {
     /** コンフィギュレーションディスクリプタ送信中 */
     USB_STATE_SEND_CONFIGURATION_DESCRIPTOR,
 
+    /** コンフィギュレーションディスクリプタの終端ZLP送信中 */
+    USB_STATE_SEND_CONFIGURATION_ZLP,
+
     /** StatusステージでOUTを待機中 */
     USB_STATE_WAIT_STATUS_OUT,
 
@@ -59,6 +62,12 @@ typedef struct {
 
             /** このディスクリプタの残りバイト数 */
             uint8_t remaining;
+
+            /** ホストが要求した残りバイト数 */
+            uint16_t request_remaining;
+
+            /** Configuration Descriptor全体の残りバイト数 */
+            uint16_t total_remaining;
 
             /** インデックス */
             struct {

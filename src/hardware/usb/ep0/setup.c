@@ -67,14 +67,20 @@ bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
 
         usb_ep0_ctx.config_stream.cursor = config;
         usb_ep0_ctx.config_stream.remaining = config->bLength;
+        usb_ep0_ctx.config_stream.request_remaining = packet->wLength.raw;
+        usb_ep0_ctx.config_stream.total_remaining = config->wTotalLength;
         usb_ep0_ctx.config_stream.indices.interface = 0;
         // NOTE: child index 31は "configディスクリプタ送信中" とみなす
         usb_ep0_ctx.config_stream.indices.child = 0b00011111;
 
-        uint8_t filled_length = usb_ep0_prepare_descriptor();
-        size_t tx_length = filled_length > packet->wLength.raw ? packet->wLength.raw : filled_length;
+        if (packet->wLength.raw == 0) {
+            usb_ep0_ctx.state = USB_STATE_WAIT_STATUS_OUT;
+            UEP0_T_LEN = 0;
+            UEP0_CTRL = bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_NAK;
+            return true;
+        }
 
-        UEP0_T_LEN = tx_length;
+        UEP0_T_LEN = usb_ep0_prepare_descriptor();
         UEP0_CTRL = bUEP_T_TOG | bUEP_R_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;
         return true;
     }
