@@ -69,9 +69,9 @@ bool usb_ep0_handle_setup(usb_setup_packet_ptr packet) {
         usb_ep0_ctx.config_stream.remaining = config->bLength;
         usb_ep0_ctx.config_stream.request_remaining = packet->wLength.raw;
         usb_ep0_ctx.config_stream.total_remaining = config->wTotalLength;
-        usb_ep0_ctx.config_stream.indices.interface = 0;
-        // NOTE: child index 31は "configディスクリプタ送信中" とみなす
-        usb_ep0_ctx.config_stream.indices.child = 0b00011111;
+        usb_ep0_ctx.config_stream.entry_index = 0;
+        usb_ep0_ctx.config_stream.child_index = 0;
+        usb_ep0_ctx.config_stream.phase = USB_CONFIG_PHASE_HEADER;
 
         if (packet->wLength.raw == 0) {
             usb_ep0_ctx.state = USB_STATE_WAIT_STATUS_OUT;

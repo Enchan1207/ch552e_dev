@@ -5,66 +5,61 @@
 
 #include "internal.h"
 
-/**
- * @brief 次のインタフェースディスクリプタをストリームに設定する
- *
- * @return 次のインタフェースディスクリプタが存在した場合は true
- */
-static bool move_to_interface_descriptor(void) {
-    usb_interface_descriptor_ptr interface_descriptor = usb_get_interface_descriptor(
-        usb_ep0_ctx.config_stream.indices.interface);
-    if (interface_descriptor == NULL) {
+/** 次に送るディスクリプタをストリームへ設定する */
+static void select_descriptor(usb_descriptor_ptr descriptor) {
+    usb_ep0_ctx.config_stream.cursor = descriptor;
+    usb_ep0_ctx.config_stream.remaining = descriptor[0];
+}
+
+/** Configuration 直下の Entry を取得する */
+static bool move_to_entry(void) {
+    usb_descriptor_ptr entry = usb_get_configuration_entry(usb_ep0_ctx.config_stream.entry_index);
+    if (entry == NULL) {
         return false;
     }
 
-    usb_ep0_ctx.config_stream.cursor = interface_descriptor;
-    usb_ep0_ctx.config_stream.remaining = interface_descriptor->bLength;
-    usb_ep0_ctx.config_stream.indices.child = 0;
+    select_descriptor(entry);
+    usb_ep0_ctx.config_stream.child_index = 0;
+    usb_ep0_ctx.config_stream.phase = entry[1] == USB_DESCRIPTOR_TYPE_INTERFACE
+                                          ? USB_CONFIG_PHASE_CHILD
+                                          : USB_CONFIG_PHASE_ENTRY;
     return true;
 }
 
-/**
- * @brief 現在のインタフェースの次の従属ディスクリプタをストリームに設定する
- *
- * @return 次の従属ディスクリプタが存在した場合は true
- */
-static bool move_to_interface_child_descriptor(void) {
-    const __code uint8_t* child_descriptor = usb_get_interface_child_descriptor(
-        usb_ep0_ctx.config_stream.indices.interface,
-        usb_ep0_ctx.config_stream.indices.child,
-        &usb_ep0_ctx.config_stream.remaining);
-
-    if (child_descriptor == NULL) {
+/** 現在の Interface Entry に属する次の Child を取得する */
+static bool move_to_child(void) {
+    if (usb_ep0_ctx.config_stream.child_index == UINT8_MAX) {
         return false;
     }
 
-    usb_ep0_ctx.config_stream.cursor = child_descriptor;
-    usb_ep0_ctx.config_stream.indices.child++;
+    usb_descriptor_ptr child = usb_get_configuration_entry_child(
+        usb_ep0_ctx.config_stream.entry_index,
+        usb_ep0_ctx.config_stream.child_index);
+    if (child == NULL) {
+        return false;
+    }
+
+    select_descriptor(child);
+    usb_ep0_ctx.config_stream.child_index++;
     return true;
 }
 
-/**
- * @brief 次のディスクリプタに移動する
- *
- * @return bool ディスクリプタ列挙ループを続行可能かどうか
- */
-static inline bool move_to_next_descriptor(void) {
-    // child index 31 はコンフィギュレーションディスクリプタ送信中を表す。
-    if (usb_ep0_ctx.config_stream.indices.child == 0b00011111) {
-        return move_to_interface_descriptor();
+/** Configuration → Entry → Interface Child の順に進む */
+static bool move_to_next_descriptor(void) {
+    if (usb_ep0_ctx.config_stream.phase == USB_CONFIG_PHASE_HEADER) {
+        return move_to_entry();
     }
 
-    if (move_to_interface_child_descriptor()) {
+    if (usb_ep0_ctx.config_stream.phase == USB_CONFIG_PHASE_CHILD && move_to_child()) {
         return true;
     }
 
-    // 3 bit の interface index で表現できるのは 0-7。
-    if (usb_ep0_ctx.config_stream.indices.interface == 0b00000111) {
+    if (usb_ep0_ctx.config_stream.entry_index == UINT8_MAX) {
         return false;
     }
 
-    usb_ep0_ctx.config_stream.indices.interface++;
-    return move_to_interface_descriptor();
+    usb_ep0_ctx.config_stream.entry_index++;
+    return move_to_entry();
 }
 
 uint8_t usb_ep0_prepare_descriptor(void) {

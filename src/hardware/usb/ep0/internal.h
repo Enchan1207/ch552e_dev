@@ -12,6 +12,11 @@
 
 // MARK: - structs
 
+/** Configuration Descriptor 内の列挙段階 */
+#define USB_CONFIG_PHASE_HEADER 0
+#define USB_CONFIG_PHASE_ENTRY 1
+#define USB_CONFIG_PHASE_CHILD 2
+
 /** EP0の状態 */
 typedef enum {
     /** 初期状態 */
@@ -69,14 +74,14 @@ typedef struct {
             /** Configuration Descriptor全体の残りバイト数 */
             uint16_t total_remaining;
 
-            /** インデックス */
-            struct {
-                /** I/Fディスクリプタのインデックス */
-                uint8_t interface : 3;
+            /** Configuration 直下の列挙インデックス */
+            uint8_t entry_index;
 
-                /** I/F従属ディスクリプタのインデックス */
-                uint8_t child : 5;
-            } indices;
+            /** Interface Entry に従属するディスクリプタの列挙インデックス */
+            uint8_t child_index;
+
+            /** Configuration / Entry / Child の列挙段階 */
+            uint8_t phase;
         } config_stream;
     };
 

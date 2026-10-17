@@ -65,19 +65,18 @@ usb_configuration_descriptor_ptr usb_get_configuration_descriptor(void) {
     return &configuration_descriptor;
 }
 
-usb_interface_descriptor_ptr usb_get_interface_descriptor(uint8_t index) {
-    if (index > 0) {
+usb_descriptor_ptr usb_get_configuration_entry(uint8_t entry_index) {
+    if (entry_index != 0) {
         return NULL;
     }
 
-    return &interface_descriptor;
+    return (usb_descriptor_ptr)&interface_descriptor;
 }
 
-const __code uint8_t* usb_get_interface_child_descriptor(uint8_t if_index, uint8_t index, uint8_t* length) {
+usb_descriptor_ptr usb_get_configuration_entry_child(uint8_t entry_index, uint8_t child_index) {
     // NOTE: 従属ディスクリプタなし
-    (void)if_index;
-    (void)index;
-    (void)length;
+    (void)entry_index;
+    (void)child_index;
 
     return NULL;
 }
